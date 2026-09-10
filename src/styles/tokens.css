@@ -1,0 +1,37 @@
+/* Temporary palette: replace brand values here when the approved logo arrives. */
+@theme {
+  --color-brand: #5933d3;
+  --color-brand-hover: #4524b0;
+  --color-accent: #d6f547;
+  --color-ink: #201438;
+  --color-muted: #655e73;
+  --color-surface: #f6f4fa;
+  --color-paper: #ffffff;
+  --color-line: #ddd7e8;
+  --color-telegram: #086b96;
+  --color-telegram-hover: #055575;
+  --color-danger: #b42318;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --text-display: clamp(2.25rem, 6vw, 4.75rem);
+  --text-display--line-height: 1.06;
+  --text-heading: clamp(1.75rem, 4vw, 3rem);
+  --text-heading--line-height: 1.15;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.5;
+  --spacing: 0.25rem;
+  --spacing-section: clamp(3rem, 7vw, 6rem);
+  --radius-control: 0.75rem;
+  --radius-card: 1.5rem;
+  --radius-panel: 2rem;
+  --shadow-card: 0 8px 28px rgb(32 20 56 / 6%);
+  --shadow-raised: 0 16px 36px rgb(32 20 56 / 12%);
+  --default-transition-duration: 180ms;
+}
+
+:root {
+  --motion-duration: 420ms;
+  --motion-distance: 12px;
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

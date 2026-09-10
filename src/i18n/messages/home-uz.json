@@ -1,0 +1,95 @@
+{
+  "hero": {
+    "eyebrow": "Prox Marketing Agency",
+    "title": "Bizneslarni raqamli dunyoda tizimli rivojlantirish va sotuvlarni oshirish",
+    "description": "Prox — strategik SMM, maqsadli target reklama, brending hamda zamonaviy IT yechimlari orqali brendlarni yangi bosqichga olib chiquvchi digital marketing agentligi.",
+    "action": "Bepul konsultatsiya olish",
+    "secondary": "Xizmatlarimiz",
+    "stat1": "50+",
+    "stat1Label": "Muvaffaqiyatli loyihalar",
+    "stat2": "3x",
+    "stat2Label": "O'rtacha konversiya o'sishi",
+    "stat3": "100%",
+    "stat3Label": "Shaffof hisobotlar"
+  },
+  "services": {
+    "title": "Xizmatlarimiz",
+    "subtitle": "Biznesingizni rivojlantirish uchun 3 ta asosiy strategik yo'nalish",
+    "action": "Batafsil",
+    "items": {
+      "smm": {
+        "title": "SMM (Social Media Marketing)",
+        "description": "Strategiya, kontent yaratish (video, storis, motion), postlarni boshqarish, Instagram va Facebook target reklamalari hamda batafsil analitika."
+      },
+      "marketing": {
+        "title": "Kompleks Marketing",
+        "description": "Target reklama (Google Ads, Telegram Ads), branding, firma uslubi, brandbook, marketing strategiyasi, konsalting va sotuv bo‘limi nazorati."
+      },
+      "it": {
+        "title": "IT va Raqamli Yechimlar",
+        "description": "Landing page, korporativ saytlar, internet-do'konlar, iOS va Android mobil ilovalar, to'lov integratsiyasi, UI/UX dizayn va AI botlar."
+      }
+    }
+  },
+  "usp": {
+    "title": "Nega aynan Prox Marketing?",
+    "subtitle": "Biz shunchaki xizmat ko'rsatmaymiz, biznesingiz sotuvlari tizimli oshishi uchun mas'uliyatni zimmamizga olamiz.",
+    "items": [
+      {
+        "title": "Tizimli va strategik yondashuv",
+        "description": "Har bir loyiha auditoriya va bozor tahlilidan boshlanadi. Shunchaki chiroyli rasm emas, aynan sotuv keltiruvchi yo'l xaritasini quramiz."
+      },
+      {
+        "title": "Aniq va shaffof natijalar",
+        "description": "Har bir reklama byudjeti qayerga ketgani va qanday natija berganini real raqamlar hamda oylik hisobotlar bilan ko'rsatamiz."
+      },
+      {
+        "title": "Kreativ va kuchli jamoa",
+        "description": "Kreativ kopirayterlar, dizaynerlar, tajribali targetologlar va IT mutaxassislar yagona maqsad yo'lida ishlaydi."
+      },
+      {
+        "title": "Yagona kompleks ekotizim",
+        "description": "SMM va targetdan tortib, to'lov tizimiga ega veb-sayt va AI botlargacha — barcha raqamli ehtiyojlar yagona agentlikda."
+      }
+    ]
+  },
+  "partners": {
+    "title": "Hamkorlarimiz",
+    "subtitle": "Bizga ishonch bildirgan kompaniyalar va brendlar",
+    "placeholder": "Hamkor logotipi uchun joy",
+    "previous": "Oldingi logotiplar",
+    "next": "Keyingi logotiplar",
+    "listLabel": "Hamkor logotiplari slayderi"
+  },
+  "pricing": {
+    "title": "Tariflar qisqacha",
+    "subtitle": "Biznesingiz ko'lami va maqsadlariga mos shaffof narxlar",
+    "smm": "SMM xizmatlari",
+    "monthPlan": "{months} oylik paket",
+    "perMonth": "/ oy",
+    "marketing": "Kompleks Marketing",
+    "starting": "{price} dan",
+    "marketingNote": "Loyiha hajmiga qarab individual hisoblanadi.",
+    "it": "IT xizmatlari",
+    "individual": "Individual smeta",
+    "itNote": "Har bir loyiha individual buyurtma asosida kelishiladi.",
+    "details": "Tariflarni ko‘rish",
+    "estimate": "Bepul smeta / taklif olish"
+  },
+  "consultation": {
+    "title": "Bepul konsultatsiya olish",
+    "description": "Ism, telefon va kerakli xizmat turini qoldiring. Mutaxassisimiz loyihangizni tahlil qilib, tez orada bog'lanadi.",
+    "direct": "Telegram orqali yozish",
+    "fields": {
+      "name": "Ism",
+      "phone": "Telefon",
+      "service": "Xizmat turi",
+      "message": "Xabar (ixtiyoriy)",
+      "choose": "Tanlang",
+      "submit": "Bepul konsultatsiya olish",
+      "notice": "Ma'lumotlaringiz xavfsiz saqlanadi va uchinchi shaxslarga berilmaydi.",
+      "required": "Telefon raqamini kiriting.",
+      "checked": "So'rovingiz muvaffaqiyatli qabul qilindi!"
+    }
+  }
+}

@@ -1,0 +1,158 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Services (xizmatlar: title_uz, title_ru, desc_uz, desc_ru, category: SMM, Marketing, IT)
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  category    String   // SMM, Marketing, IT
+  titleUz     String
+  titleRu     String
+  titleEn     String?
+  descUz      String
+  descRu      String
+  descEn      String?
+  icon        String?  // lucide icon identifier
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([order])
+}
+
+// 2. Tariffs (paket nomi, narx, muddat, xizmat turi: SMM, Marketing)
+model Tariff {
+  id             String   @id @default(cuid())
+  nameUz         String
+  nameRu         String
+  nameEn         String?
+  serviceType    String   // SMM, Marketing, IT
+  price          String   // e.g. "$1500", "$2000 dan", "Individual smeta"
+  periodUz       String   // e.g. "/ oy", "/ 3 oy"
+  periodRu       String   // e.g. "/ месяц", "/ 3 месяца"
+  durationMonths Int?     // 1, 3, 6, 12
+  featuresUz     String   // JSON stringified array of features
+  featuresRu     String   // JSON stringified array of features
+  isPopular      Boolean  @default(false)
+  order          Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([serviceType])
+  @@index([order])
+}
+
+// 3. Partners (logotip rasmi, nomi, havola)
+model Partner {
+  id         String   @id @default(cuid())
+  name       String
+  logoUrl    String
+  websiteUrl String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([order])
+}
+
+// 4. Portfolio (sarlavha, rasm, tavsif — hozircha bo'sh holatda, kelajakda to'ldirishga tayyor)
+model Portfolio {
+  id          String   @id @default(cuid())
+  titleUz     String
+  titleRu     String
+  titleEn     String?
+  descUz      String
+  descRu      String
+  descEn      String?
+  imageUrl    String
+  category    String   // SMM, Marketing, IT
+  clientName  String?
+  projectUrl  String?
+  order       Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([order])
+}
+
+// 5. Team (jamoa a'zolari — hozircha bo'sh modul)
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  roleUz      String
+  roleRu      String
+  roleEn      String?
+  bioUz       String?
+  bioRu       String?
+  imageUrl    String?
+  socialLinks String?  // JSON string
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
+
+// 6. Leads (kelib tushgan so'rovlar: ism, telefon, xizmat_turi, izoh, status: yangi/ko'rildi/yopildi)
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  serviceType String   // SMM, Marketing, IT, or specific service
+  comment     String?
+  status      String   @default("yangi") // yangi, ko'rildi, yopildi
+  source      String   @default("website_form")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// 7. SiteSettings (telefon: +998 20 026 04 18, instagram: @prox_uz, telegram: @manager_prox, hero_matnlari)
+model SiteSettings {
+  id                String   @id @default("default")
+  phone             String   @default("+998 20 026 04 18")
+  phoneHref         String   @default("tel:+998200260418")
+  instagram         String   @default("https://www.instagram.com/prox_uz/")
+  instagramLabel    String   @default("@prox_uz")
+  telegram          String   @default("https://t.me/manager_prox")
+  telegramLabel     String   @default("@manager_prox")
+  heroEyebrowUz     String   @default("Prox Marketing Agency")
+  heroEyebrowRu     String   @default("Prox Marketing Agency")
+  heroTitleUz       String   @default("Biznesingizni yangi bosqichga olib chiqamiz")
+  heroTitleRu       String   @default("Выводим ваш бизнес на новый уровень")
+  heroDescUz        String   @default("Prox — bizneslarni raqamli dunyoda tizimli rivojlantirish va sotuvlarni oshirishga ixtisoslashgan digital marketing agentligi.")
+  heroDescRu        String   @default("Prox — digital-маркетинговое агентство, специализирующееся на системном развитии бизнеса в цифровой среде и увеличении продаж.")
+  addressUz         String?  @default("Toshkent shahri")
+  addressRu         String?  @default("город Ташкент")
+  email             String?  @default("info@proxmarketing.uz")
+  telegramBotToken  String?
+  telegramChatId    String?
+  updatedAt         DateTime @updatedAt
+}
+
+// 8. Admin foydalanuvchilar
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("admin") // admin, editor
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
