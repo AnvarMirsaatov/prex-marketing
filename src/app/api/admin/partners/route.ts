@@ -21,6 +21,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ruxsat berilmagan" }, { status: 401 });
   }
 
+  const role = (session.role || "").toUpperCase();
+  if (role !== "SUPER_ADMIN") {
+    return NextResponse.json(
+      { error: "Kirish taqiqlangan. Faqat Super Admin hamkor qo'sha oladi." },
+      { status: 403 }
+    );
+  }
+
   try {
     const { name, logoUrl, websiteUrl, order, isActive } = await request.json();
 
@@ -52,6 +60,14 @@ export async function PUT(request: Request) {
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Ruxsat berilmagan" }, { status: 401 });
+  }
+
+  const role = (session.role || "").toUpperCase();
+  if (role !== "SUPER_ADMIN") {
+    return NextResponse.json(
+      { error: "Kirish taqiqlangan. Faqat Super Admin hamkor ma'lumotlarini o'zgartira oladi." },
+      { status: 403 }
+    );
   }
 
   try {
@@ -89,6 +105,14 @@ export async function DELETE(request: Request) {
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Ruxsat berilmagan" }, { status: 401 });
+  }
+
+  const role = (session.role || "").toUpperCase();
+  if (role !== "SUPER_ADMIN") {
+    return NextResponse.json(
+      { error: "Kirish taqiqlangan. Faqat Super Admin hamkorni o'chira oladi." },
+      { status: 403 }
+    );
   }
 
   try {

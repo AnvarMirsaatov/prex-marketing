@@ -200,6 +200,14 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Ruxsat berilmagan" }, { status: 401 });
   }
 
+  const role = (session.role || "").toUpperCase();
+  if (role !== "SUPER_ADMIN") {
+    return NextResponse.json(
+      { error: "Kirish taqiqlangan. Lidni faqat Super Admin o'chira oladi." },
+      { status: 403 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

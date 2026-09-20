@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <div className="space-y-8 pt-12 md:pt-0">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -129,11 +129,11 @@ export default async function AdminDashboardPage() {
               >
                 <div className="flex items-start sm:items-center gap-3">
                   <div className="size-10 rounded-full bg-blue-950 border border-blue-800/40 flex items-center justify-center text-sky-300 font-bold shrink-0">
-                    {lead.name.charAt(0).toUpperCase()}
+                    {(lead.name || "A").charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white text-sm">{lead.name}</span>
+                      <span className="font-semibold text-white text-sm">{lead.name || "Noma'lum"}</span>
                       <span
                         className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                           lead.status === "yangi"
@@ -148,14 +148,14 @@ export default async function AdminDashboardPage() {
                     </div>
                     <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
                       <a
-                        href={`tel:${lead.phone}`}
+                        href={lead.phone ? `tel:${lead.phone}` : "#"}
                         className="flex items-center gap-1 text-sky-400 hover:underline"
                       >
                         <Phone className="size-3" />
-                        {lead.phone}
+                        {lead.phone || "—"}
                       </a>
                       <span>&bull;</span>
-                      <span className="text-slate-300">{lead.serviceType}</span>
+                      <span className="text-slate-300">{lead.serviceType || "Umumiy"}</span>
                     </div>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default async function AdminDashboardPage() {
       {/* Quick shortcuts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
-          href="/admin/tariffs"
+          href="/admin/content?tab=tariffs"
           className="p-5 rounded-2xl bg-[#0a1326] border border-blue-900/20 hover:border-blue-500/40 transition-all group shadow-sm hover:shadow-blue-950/40"
         >
           <div className="flex items-center justify-between">
@@ -201,7 +201,7 @@ export default async function AdminDashboardPage() {
         </Link>
 
         <Link
-          href="/admin/services"
+          href="/admin/content?tab=services"
           className="p-5 rounded-2xl bg-[#0a1326] border border-blue-900/20 hover:border-blue-500/40 transition-all group shadow-sm hover:shadow-blue-950/40"
         >
           <div className="flex items-center justify-between">
@@ -216,7 +216,7 @@ export default async function AdminDashboardPage() {
         </Link>
 
         <Link
-          href="/admin/settings"
+          href="/admin/content?tab=branding"
           className="p-5 rounded-2xl bg-[#0a1326] border border-blue-900/20 hover:border-blue-500/40 transition-all group shadow-sm hover:shadow-blue-950/40"
         >
           <div className="flex items-center justify-between">

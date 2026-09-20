@@ -24,6 +24,7 @@ export function TabPortfolio() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [titleUz, setTitleUz] = useState("");
   const [titleRu, setTitleRu] = useState("");
@@ -79,6 +80,9 @@ export function TabPortfolio() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
       const res = await fetch("/api/admin/portfolio", {
         method: editingId ? "PUT" : "POST",
@@ -104,10 +108,13 @@ export function TabPortfolio() {
         setModalOpen(false);
         fetchPortfolio();
       } else {
-        showToast("Xatolik yuz berdi", "error");
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || "Xatolik yuz berdi", "error");
       }
     } catch {
       showToast("Server xatosi", "error");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -125,7 +132,7 @@ export function TabPortfolio() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-white">Portfolio / Keyslar</h1>
@@ -341,9 +348,10 @@ export function TabPortfolio() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Saqlash
+                  {submitting ? "Saqlanmoqda..." : "Saqlash"}
                 </button>
               </div>
             </form>

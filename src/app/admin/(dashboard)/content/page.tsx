@@ -85,16 +85,30 @@ function ContentManagerContent() {
     const tabParam = searchParams.get("tab");
     if (tabParam && TABS.some((t) => t.id === tabParam)) {
       setActiveTab(tabParam);
+      try {
+        localStorage.setItem("prox_admin_active_tab", tabParam);
+      } catch {}
+    } else {
+      try {
+        const saved = localStorage.getItem("prox_admin_active_tab");
+        if (saved && TABS.some((t) => t.id === saved)) {
+          setActiveTab(saved);
+          router.replace(`/admin/content?tab=${saved}`, { scroll: false });
+        }
+      } catch {}
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   function handleTabChange(tabId: string) {
     setActiveTab(tabId);
+    try {
+      localStorage.setItem("prox_admin_active_tab", tabId);
+    } catch {}
     router.replace(`/admin/content?tab=${tabId}`, { scroll: false });
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6">
       {/* Top Header */}
       <div>
         <div className="flex items-center gap-2.5">
@@ -116,7 +130,7 @@ function ContentManagerContent() {
       </div>
 
       {/* Horizontal Tab Navigation */}
-      <div className="p-1.5 rounded-2xl bg-[#0a1326] border border-blue-900/30 shadow-sm overflow-x-auto scrollbar-none">
+      <div className="p-1.5 rounded-2xl bg-[#0a1326] border border-blue-900/30 shadow-sm overflow-x-auto scrollbar-none touch-pan-x">
         <div className="flex items-center gap-1.5 min-w-max">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -126,7 +140,7 @@ function ContentManagerContent() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap min-h-[44px] shrink-0 transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/30 border border-blue-400/30 font-bold"
                     : "text-slate-400 hover:text-slate-200 hover:bg-blue-950/40 border border-transparent"

@@ -60,7 +60,7 @@ export default function AdminSecurityPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0 max-w-2xl">
+    <div className="space-y-6 max-w-2xl">
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
           <ShieldCheck className="size-3.5" />

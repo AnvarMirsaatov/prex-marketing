@@ -22,6 +22,7 @@ export function TabServices() {
   const [services, setServices] = useState<Service[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Form states
   const [slug, setSlug] = useState("");
@@ -80,6 +81,7 @@ export function TabServices() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (submitting) return;
 
     const payload = {
       id: editingId,
@@ -94,6 +96,7 @@ export function TabServices() {
       isActive,
     };
 
+    setSubmitting(true);
     try {
       const res = await fetch("/api/admin/services", {
         method: editingId ? "PUT" : "POST",
@@ -109,10 +112,13 @@ export function TabServices() {
         setModalOpen(false);
         fetchServices();
       } else {
-        showToast("Xatolik yuz berdi", "error");
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || "Xatolik yuz berdi", "error");
       }
     } catch {
       showToast("Server xatosi", "error");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -130,7 +136,7 @@ export function TabServices() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-white">Xizmatlar (Services)</h1>
@@ -320,9 +326,10 @@ export function TabServices() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
+                  disabled={submitting}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Saqlash
+                  {submitting ? "Saqlanmoqda..." : "Saqlash"}
                 </button>
               </div>
             </form>

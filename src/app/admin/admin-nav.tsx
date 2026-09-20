@@ -93,7 +93,7 @@ export function AdminNav() {
   }
 
   const navContent = (
-    <div className="flex flex-col h-full bg-[#070e1c] border-r border-blue-900/20 p-4 w-64 text-slate-200">
+    <div className="flex flex-col h-full bg-[#070e1c] border-r border-blue-900/20 p-4 w-full text-slate-200">
       {/* Brand header */}
       <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-blue-900/20">
         <div>
@@ -111,7 +111,8 @@ export function AdminNav() {
         </div>
         <button
           onClick={() => setMobileOpen(false)}
-          className="md:hidden text-slate-400 hover:text-white"
+          className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+          aria-label="Menyuni yopish"
         >
           <X className="size-5" />
         </button>
@@ -203,23 +204,24 @@ export function AdminNav() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 shrink-0 h-screen sticky top-0">
+      {/* Desktop Sidebar (>= 1024px) */}
+      <aside className="hidden lg:block w-64 shrink-0 h-screen sticky top-0">
         {navContent}
       </aside>
 
-      {/* Mobile Bar & Drawer */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#070e1c] border-b border-blue-900/20 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      {/* Mobile & Tablet Bar (< 1024px) */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#070e1c]/95 backdrop-blur-md border-b border-blue-900/20 px-4 py-3 flex items-center justify-between shadow-lg">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => setMobileOpen(true)}
-            className="p-1 text-slate-300 hover:text-white"
+            className="p-1.5 text-slate-300 hover:text-white hover:bg-blue-950/50 rounded-lg transition-colors cursor-pointer"
+            aria-label="Menyuni ochish"
           >
             <Menu className="size-6" />
           </button>
           {logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={logoUrl} alt="Prox Logo" className="h-6 w-auto max-w-[110px] object-contain" />
+            <img src={logoUrl} alt="Prox Logo" className="h-6 w-auto max-w-[120px] object-contain" />
           ) : (
             <span className="font-black text-lg text-white">PROX ADMIN</span>
           )}
@@ -227,16 +229,25 @@ export function AdminNav() {
         <Link
           href="/uz"
           target="_blank"
-          className="text-xs bg-blue-950/80 border border-blue-800/40 px-2.5 py-1.5 rounded-lg text-blue-200 flex items-center gap-1.5 hover:bg-blue-900/60 transition-colors"
+          className="text-xs bg-blue-950/80 border border-blue-800/40 px-3 py-1.5 rounded-lg text-blue-200 flex items-center gap-1.5 hover:bg-blue-900/60 transition-colors"
         >
           <span>Sayt</span>
           <ExternalLink className="size-3" />
         </Link>
       </div>
 
+      {/* Mobile & Tablet Drawer Modal with Backdrop */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm md:hidden">
-          <div className="w-64 h-full">{navContent}</div>
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden flex transition-all duration-300"
+          onClick={() => setMobileOpen(false)}
+        >
+          <div
+            className="w-72 max-w-[85vw] h-full shadow-2xl shadow-blue-950/80 animate-in slide-in-from-left duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {navContent}
+          </div>
         </div>
       )}
     </>

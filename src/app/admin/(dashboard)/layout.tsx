@@ -28,7 +28,7 @@ export default async function DashboardLayout({
     <div className="flex w-full min-h-screen">
       <AdminNav />
       <main className="flex-1 flex flex-col min-w-0 bg-[#070e1c]/70 overflow-y-auto">
-        <div className="p-6 md:p-8 max-w-7xl w-full mx-auto">
+        <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 max-w-7xl w-full mx-auto">
           {children}
         </div>
       </main>

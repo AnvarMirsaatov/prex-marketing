@@ -83,6 +83,7 @@ export default function AdminLeadsPage() {
   const [notesLead, setNotesLead] = useState<Lead | null>(null);
   const [newNoteText, setNewNoteText] = useState("");
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
+  const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
 
   // Load list of all admins
   useEffect(() => {
@@ -133,22 +134,24 @@ export default function AdminLeadsPage() {
 
   useEffect(() => {
     fetchLeads(activeStatus, activeAssigned);
-  }, [activeStatus, activeAssigned]);
+  }, [activeStatus, activeAssigned, fetchLeads]);
 
   const filteredLeads = useMemo(() => {
     if (!searchQuery.trim()) return leads;
     const query = searchQuery.toLowerCase().trim();
     return leads.filter(
       (lead) =>
-        lead.name.toLowerCase().includes(query) ||
-        lead.phone.toLowerCase().includes(query) ||
-        lead.serviceType.toLowerCase().includes(query) ||
+        (lead.name || "").toLowerCase().includes(query) ||
+        (lead.phone || "").toLowerCase().includes(query) ||
+        (lead.serviceType || "").toLowerCase().includes(query) ||
         (lead.comment && lead.comment.toLowerCase().includes(query)) ||
-        (lead.assignedTo && lead.assignedTo.name.toLowerCase().includes(query))
+        (lead.assignedTo && (lead.assignedTo.name || "").toLowerCase().includes(query))
     );
   }, [leads, searchQuery]);
 
   async function handleStatusChange(id: string, newStatus: string) {
+    if (updatingLeadId) return;
+    setUpdatingLeadId(id);
     try {
       const res = await fetch("/api/admin/leads", {
         method: "PATCH",
@@ -167,10 +170,14 @@ export default function AdminLeadsPage() {
       }
     } catch {
       showToast("Server xatosi", "error");
+    } finally {
+      setUpdatingLeadId(null);
     }
   }
 
   async function handleAssign(id: string, assignedToId: string | null) {
+    if (updatingLeadId) return;
+    setUpdatingLeadId(id);
     try {
       const res = await fetch("/api/admin/leads", {
         method: "PATCH",
@@ -192,12 +199,14 @@ export default function AdminLeadsPage() {
       }
     } catch {
       showToast("Server xatosi", "error");
+    } finally {
+      setUpdatingLeadId(null);
     }
   }
 
   async function handleAddNote(e: React.FormEvent) {
     e.preventDefault();
-    if (!notesLead || !newNoteText.trim()) return;
+    if (!notesLead || !newNoteText.trim() || isSubmittingNote) return;
 
     setIsSubmittingNote(true);
     try {
@@ -225,17 +234,26 @@ export default function AdminLeadsPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!isSuperAdmin) {
+      showToast("Faqat Super Admin so'rovni o'chira oladi", "error");
+      return;
+    }
     if (!confirm("Haqiqatan ham bu so'rovni o'chirmoqchimisiz?")) return;
+    if (updatingLeadId) return;
+    setUpdatingLeadId(id);
     try {
       const res = await fetch(`/api/admin/leads?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         showToast("So'rov o'chirildi", "info");
         fetchLeads(activeStatus, activeAssigned);
       } else {
-        showToast("O'chirib bo'lmadi", "error");
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || "O'chirib bo'lmadi", "error");
       }
     } catch {
       showToast("Server xatosi", "error");
+    } finally {
+      setUpdatingLeadId(null);
     }
   }
 
@@ -277,9 +295,10 @@ export default function AdminLeadsPage() {
 
       {/* Search and Filters Bar */}
       <div className="p-4 rounded-2xl bg-[#0a1326] border border-blue-900/30 space-y-4">
-        {/* Status Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-900/20 pb-3">
-          <div className="flex flex-wrap gap-2">
+        {/* Status & Assigned Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-blue-900/20 pb-3">
+          {/* Status Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-full pb-1">
             {[
               { key: "all", label: "Barcha arizalar", count: counts.all },
               { key: "yangi", label: "Yangi", count: counts.yangi, badgeClass: "bg-amber-500/20 text-amber-300" },
@@ -291,7 +310,7 @@ export default function AdminLeadsPage() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveStatus(tab.key)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 min-h-[38px] transition-all cursor-pointer ${
                     active
                       ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-600/30 border border-blue-400/20 font-bold"
                       : "bg-[#070e1c] text-slate-400 hover:bg-blue-950/40 hover:text-white border border-blue-900/30"
@@ -299,7 +318,7 @@ export default function AdminLeadsPage() {
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`text-[11px] px-2 py-0.2 rounded-full font-bold ${
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                       active ? "bg-white/25 text-white" : tab.badgeClass || "bg-blue-950 text-slate-400"
                     }`}
                   >
@@ -311,10 +330,10 @@ export default function AdminLeadsPage() {
           </div>
 
           {/* Assigned Filter Pills */}
-          <div className="flex items-center gap-1 bg-[#070e1c] p-1 rounded-xl border border-blue-900/30 text-xs">
+          <div className="flex items-center gap-1 bg-[#070e1c] p-1 rounded-xl border border-blue-900/30 text-xs overflow-x-auto scrollbar-none max-w-full shrink-0">
             <button
               onClick={() => setActiveAssigned("all")}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap min-h-[34px] transition-colors cursor-pointer ${
                 activeAssigned === "all" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"
               }`}
             >
@@ -322,7 +341,7 @@ export default function AdminLeadsPage() {
             </button>
             <button
               onClick={() => setActiveAssigned("mine")}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap min-h-[34px] transition-colors cursor-pointer flex items-center gap-1 ${
                 activeAssigned === "mine" ? "bg-sky-600 text-white" : "text-slate-400 hover:text-white"
               }`}
             >
@@ -331,7 +350,7 @@ export default function AdminLeadsPage() {
             </button>
             <button
               onClick={() => setActiveAssigned("unassigned")}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap min-h-[34px] transition-colors cursor-pointer ${
                 activeAssigned === "unassigned" ? "bg-amber-600 text-white" : "text-slate-400 hover:text-white"
               }`}
             >
@@ -383,6 +402,7 @@ export default function AdminLeadsPage() {
               const notesList = parseNotes(lead.notes);
               const currentAdminId = currentUser?.userId || currentUser?.id;
               const isAssignedToMe = currentAdminId ? lead.assignedToId === currentAdminId : false;
+              const isUpdating = updatingLeadId === lead.id;
 
               return (
                 <div
@@ -392,7 +412,9 @@ export default function AdminLeadsPage() {
                   {/* Info Column */}
                   <div className="space-y-2.5 flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="font-bold text-white text-base tracking-tight">{lead.name}</span>
+                      <span className="font-bold text-white text-base tracking-tight">
+                        {lead.name || "Noma'lum mijoz"}
+                      </span>
                       <span
                         className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                           lead.status === "yangi"
@@ -402,20 +424,20 @@ export default function AdminLeadsPage() {
                               : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                         }`}
                       >
-                        {lead.status === "yopildi" ? "yakunlandi" : lead.status}
+                        {lead.status === "yopildi" ? "yakunlandi" : lead.status || "yangi"}
                       </span>
                       <span className="text-xs bg-blue-950/70 border border-blue-800/40 text-sky-300 px-2.5 py-0.5 rounded-md font-medium">
-                        {lead.serviceType}
+                        {lead.serviceType || "Umumiy"}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
                       <a
-                        href={`tel:${lead.phone}`}
+                        href={lead.phone ? `tel:${lead.phone}` : "#"}
                         className="flex items-center gap-1.5 text-sky-400 font-semibold hover:underline bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20"
                       >
                         <Phone className="size-3.5" />
-                        {lead.phone}
+                        {lead.phone || "—"}
                       </a>
                       <span className="flex items-center gap-1 text-slate-400">
                         <Clock className="size-3.5 text-slate-500" />
@@ -436,9 +458,10 @@ export default function AdminLeadsPage() {
                         <span className="text-slate-400 font-medium text-[11px]">Mas'ul admin:</span>
                         {isSuperAdmin ? (
                           <select
+                            disabled={isUpdating}
                             value={lead.assignedToId || ""}
                             onChange={(e) => handleAssign(lead.id, e.target.value || null)}
-                            className="bg-transparent text-xs font-semibold text-sky-300 focus:outline-none cursor-pointer"
+                            className="bg-transparent text-xs font-semibold text-sky-300 focus:outline-none cursor-pointer disabled:opacity-50"
                           >
                             <option value="" className="bg-[#0a1326] text-slate-400">
                               Biriktirilmagan
@@ -449,7 +472,7 @@ export default function AdminLeadsPage() {
                                 value={admin.id}
                                 className="bg-[#0a1326] text-white"
                               >
-                                {admin.name} ({admin.role === "SUPER_ADMIN" ? "Super Admin" : "Menejer"})
+                                {admin.name || admin.username} ({admin.role === "SUPER_ADMIN" ? "Super Admin" : "Menejer"})
                               </option>
                             ))}
                           </select>
@@ -459,26 +482,29 @@ export default function AdminLeadsPage() {
                               <CheckCircle2 className="size-3.5" /> Sizga biriktirilgan
                             </span>
                             <button
+                              disabled={isUpdating}
                               onClick={() => handleAssign(lead.id, null)}
-                              className="text-[10px] text-slate-400 hover:text-rose-400 underline cursor-pointer"
+                              className="text-[10px] text-slate-400 hover:text-rose-400 underline cursor-pointer disabled:opacity-50"
                             >
                               Bekor qilish
                             </button>
                           </div>
                         ) : lead.assignedTo ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-sky-300 font-semibold">{lead.assignedTo.name}</span>
+                            <span className="text-sky-300 font-semibold">{lead.assignedTo.name || "Menejer"}</span>
                             <button
+                              disabled={isUpdating}
                               onClick={() => handleAssign(lead.id, currentAdminId || null)}
-                              className="text-[10px] text-sky-400 hover:underline cursor-pointer"
+                              className="text-[10px] text-sky-400 hover:underline cursor-pointer disabled:opacity-50"
                             >
                               O'zimga olish
                             </button>
                           </div>
                         ) : (
                           <button
+                            disabled={isUpdating}
                             onClick={() => handleAssign(lead.id, currentAdminId || null)}
-                            className="inline-flex items-center gap-1 text-sky-400 hover:text-sky-300 font-bold text-xs cursor-pointer hover:underline"
+                            className="inline-flex items-center gap-1 text-sky-400 hover:text-sky-300 font-bold text-xs cursor-pointer hover:underline disabled:opacity-50"
                           >
                             <UserPlus className="size-3" />
                             O'zimga biriktirish
@@ -491,7 +517,7 @@ export default function AdminLeadsPage() {
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-[#050b14]/60 px-3 py-1.5 rounded-xl border border-blue-900/20">
                           <Edit3 className="size-3 text-sky-400" />
                           <span>
-                            Oxirgi tahrir: <strong className="text-slate-200">{lead.lastActionBy.name}</strong> tomonidan{" "}
+                            Oxirgi tahrir: <strong className="text-slate-200">{lead.lastActionBy.name || "Admin"}</strong> tomonidan{" "}
                             {new Date(lead.lastActionAt || lead.updatedAt).toLocaleString("uz-UZ", {
                               month: "short",
                               day: "numeric",
@@ -505,7 +531,7 @@ export default function AdminLeadsPage() {
 
                     {/* Website comment */}
                     {lead.comment && (
-                      <p className="text-xs text-slate-300 bg-[#050b14] p-2.5 rounded-xl border border-blue-900/20 mt-1 max-w-2xl">
+                      <p className="text-xs text-slate-300 bg-[#050b14] p-2.5 rounded-xl border border-blue-900/20 mt-1 max-w-2xl break-words">
                         <span className="text-slate-500 font-semibold mr-1.5">Mijoz arizasi:</span>
                         {lead.comment}
                       </p>
@@ -520,7 +546,7 @@ export default function AdminLeadsPage() {
                         setNotesLead(lead);
                         setNewNoteText("");
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-950/50 hover:bg-blue-900/50 border border-blue-800/40 text-xs font-semibold text-sky-300 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-blue-950/50 hover:bg-blue-900/50 border border-blue-800/40 text-xs font-semibold text-sky-300 transition-colors cursor-pointer"
                     >
                       <MessageSquare className="size-3.5" />
                       <span>Ichki izohlar ({notesList.length})</span>
@@ -529,30 +555,33 @@ export default function AdminLeadsPage() {
                     {/* Status Pill Switcher */}
                     <div className="flex items-center gap-1 bg-[#050b14] p-1 rounded-xl border border-blue-900/30">
                       <button
+                        disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "yangi")}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
                           lead.status === "yangi"
-                            ? "bg-amber-500 text-slate-950 shadow"
+                            ? "bg-amber-500 text-slate-950 shadow font-bold"
                             : "text-slate-400 hover:text-white"
                         }`}
                       >
                         Yangi
                       </button>
                       <button
+                        disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "ko'rildi")}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
                           lead.status === "ko'rildi"
-                            ? "bg-blue-500 text-white shadow"
+                            ? "bg-blue-500 text-white shadow font-bold"
                             : "text-slate-400 hover:text-white"
                         }`}
                       >
                         Ko'rildi
                       </button>
                       <button
+                        disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "yakunlandi")}
-                        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
                           lead.status === "yakunlandi" || lead.status === "yopildi"
-                            ? "bg-emerald-500 text-slate-950 shadow"
+                            ? "bg-emerald-500 text-slate-950 shadow font-bold"
                             : "text-slate-400 hover:text-white"
                         }`}
                       >
@@ -560,14 +589,17 @@ export default function AdminLeadsPage() {
                       </button>
                     </div>
 
-                    {/* Delete */}
-                    <button
-                      onClick={() => handleDelete(lead.id)}
-                      className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
-                      title="O'chirish"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                    {/* Delete (SUPER_ADMIN only) */}
+                    {isSuperAdmin && (
+                      <button
+                        disabled={isUpdating}
+                        onClick={() => handleDelete(lead.id)}
+                        className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="O'chirish (Super Admin)"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -588,7 +620,7 @@ export default function AdminLeadsPage() {
                   <span>Ichki izohlar va mijoz tarixi</span>
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Mijoz: <span className="text-white font-semibold">{notesLead.name}</span> ({notesLead.phone})
+                  Mijoz: <span className="text-white font-semibold">{notesLead.name || "Noma'lum"}</span> ({notesLead.phone || "—"})
                 </p>
               </div>
               <button
@@ -619,7 +651,7 @@ export default function AdminLeadsPage() {
                     >
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-white">{note.authorName}</span>
+                          <span className="font-bold text-white">{note.authorName || "Admin"}</span>
                           <span
                             className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${
                               isSuper

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export async function POST(request: Request) {
@@ -49,7 +49,9 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes);
 
     const filename = `hero-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${extension}`;
-    const filePath = path.join(process.cwd(), "public", "uploads", filename);
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
+    const filePath = path.join(uploadDir, filename);
 
     await writeFile(filePath, buffer);
 

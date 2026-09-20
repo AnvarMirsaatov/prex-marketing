@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   History,
   RefreshCw,
@@ -105,6 +106,7 @@ const ENTITY_CONFIG: Record<
 };
 
 export default function AuditLogPage() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [admins, setAdmins] = useState<AdminOption[]>([]);
@@ -147,6 +149,7 @@ export default function AuditLogPage() {
       if (!res.ok) {
         if (res.status === 403) {
           showToast("Ushbu sahifaga faqat Super Admin kira oladi", "error");
+          router.replace("/admin/leads");
           return;
         }
         throw new Error("Audit loglarini yuklab bo'lmadi");
@@ -175,7 +178,7 @@ export default function AuditLogPage() {
   };
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -304,8 +307,8 @@ export default function AuditLogPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+          <div className="overflow-x-auto min-w-full">
+            <table className="w-full min-w-[720px] text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-blue-900/30 bg-[#070e1c]/60 text-xs font-bold uppercase tracking-wider text-slate-400">
                   <th className="py-3.5 px-4">Sana va Vaqt</th>
@@ -360,7 +363,7 @@ export default function AuditLogPage() {
                                 : "bg-sky-600/20 border-sky-500/40 text-sky-200"
                             }`}
                           >
-                            {(log.userName || "A").charAt(0).toUpperCase()}
+                            {(log.userName || log.user?.name || "A").charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="text-xs font-bold text-white leading-tight">
@@ -397,14 +400,14 @@ export default function AuditLogPage() {
 
                       {/* Action & Details */}
                       <td className="py-3.5 px-4">
-                        <div className="space-y-1">
+                        <div className="space-y-1 max-w-xl">
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-blue-300 font-bold">
                               {log.action}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-200 font-medium leading-relaxed">
-                            {log.details}
+                          <p className="text-xs text-slate-200 font-medium leading-relaxed break-words">
+                            {log.details || "—"}
                           </p>
                         </div>
                       </td>
@@ -418,7 +421,7 @@ export default function AuditLogPage() {
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-blue-900/20 bg-[#070e1c]/40 flex items-center justify-between">
+          <div className="p-4 border-t border-blue-900/20 bg-[#070e1c]/40 flex flex-wrap items-center justify-between gap-3">
             <div className="text-xs text-slate-400">
               Jami <span className="text-white font-bold">{total}</span> ta yozuv (Sahifa {page} / {totalPages})
             </div>
@@ -426,7 +429,7 @@ export default function AuditLogPage() {
               <button
                 onClick={() => fetchLogs(page - 1)}
                 disabled={page <= 1 || loading}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0a1326] border border-blue-900/30 text-slate-300 hover:text-white hover:bg-blue-950/50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                className="px-3.5 py-2 min-h-[38px] rounded-lg text-xs font-semibold bg-[#0a1326] border border-blue-900/30 text-slate-300 hover:text-white hover:bg-blue-950/50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
               >
                 <ChevronLeft className="size-3.5" />
                 <span>Oldingi</span>
@@ -434,7 +437,7 @@ export default function AuditLogPage() {
               <button
                 onClick={() => fetchLogs(page + 1)}
                 disabled={page >= totalPages || loading}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0a1326] border border-blue-900/30 text-slate-300 hover:text-white hover:bg-blue-950/50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                className="px-3.5 py-2 min-h-[38px] rounded-lg text-xs font-semibold bg-[#0a1326] border border-blue-900/30 text-slate-300 hover:text-white hover:bg-blue-950/50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
               >
                 <span>Keyingi</span>
                 <ChevronRight className="size-3.5" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   Users,
   UserPlus,
@@ -25,6 +26,7 @@ interface AdminUserItem {
 }
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -68,7 +70,12 @@ export default function AdminUsersPage() {
         const usersData = await usersRes.json();
         setUsers(usersData.users || []);
       } else {
-        const err = await usersRes.json();
+        if (usersRes.status === 403) {
+          showToast("Ushbu sahifaga faqat Super Admin kira oladi", "error");
+          router.replace("/admin/leads");
+          return;
+        }
+        const err = await usersRes.json().catch(() => ({}));
         showToast(err.error || "Foydalanuvchilarni yuklab bo'lmadi", "error");
       }
     } catch {
