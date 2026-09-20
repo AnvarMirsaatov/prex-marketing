@@ -270,8 +270,8 @@ export function ConsultationForm({
         {/* Service selection: Radio cards or Select dropdown */}
         {isFewOptions ? (
           <div className="space-y-2">
-            <label className="block text-label font-bold">
-              {labels.service} <span aria-hidden="true">*</span>
+            <label className="block text-xs font-semibold tracking-wide uppercase text-slate-300">
+              {labels.service} <span aria-hidden="true" className="text-sky-400">*</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {effectiveServices.map((opt) => {
@@ -279,10 +279,10 @@ export function ConsultationForm({
                 return (
                   <label
                     key={opt.value}
-                    className={`flex items-center gap-2.5 p-3 rounded-control border cursor-pointer transition-all ${
+                    className={`flex items-center gap-2.5 p-3 rounded-control border cursor-pointer transition-all duration-200 ${
                       isSelected
-                        ? "bg-brand/10 border-brand text-brand font-bold shadow-xs"
-                        : "bg-surface border-line text-ink hover:border-brand/40"
+                        ? "bg-blue-500/20 border-sky-400 text-sky-200 font-bold shadow-[0_0_15px_rgba(56,189,248,0.25)]"
+                        : "bg-[#0b1528]/80 border-blue-500/20 text-slate-300 hover:border-blue-500/50 hover:bg-[#0f1d38]"
                     }`}
                   >
                     <input
@@ -291,7 +291,7 @@ export function ConsultationForm({
                       value={opt.value}
                       checked={isSelected}
                       onChange={() => setSelectedService(opt.value)}
-                      className="size-4 text-brand focus:ring-brand"
+                      className="size-4 accent-sky-400"
                     />
                     <span className="text-xs">{opt.label}</span>
                   </label>
@@ -323,7 +323,7 @@ export function ConsultationForm({
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full sm:w-auto shadow-md"
+            className="w-full sm:w-auto shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(56,189,248,0.6)]"
           >
             {submitting ? (
               <span className="flex items-center gap-2">
@@ -338,8 +338,8 @@ export function ConsultationForm({
             )}
           </Button>
 
-          <span className="text-[11px] text-muted flex items-center gap-1.5">
-            <Clock className="size-3.5 text-brand shrink-0" />
+          <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <Clock className="size-3.5 text-sky-400 shrink-0" />
             <span>15 daqiqa ichida javob beramiz</span>
           </span>
         </div>
@@ -350,56 +350,56 @@ export function ConsultationForm({
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#030712]/80 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div
-            className="relative w-full max-w-lg rounded-panel bg-paper border border-line p-6 sm:p-8 shadow-2xl space-y-6 text-center"
+            className="relative w-full max-w-lg rounded-panel bg-[#091326] border border-blue-500/30 p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-6 text-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close icon */}
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-muted hover:text-ink p-1.5 rounded-full hover:bg-surface transition-colors cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Yopish"
             >
               <X className="size-5" />
             </button>
 
             {/* Checkmark icon with pulsing ring */}
-            <div className="size-20 rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-inner">
+            <div className="size-20 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-inner">
               <CheckCircle2 className="size-10" />
             </div>
 
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand/10 text-brand text-[11px] font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-sky-400 text-[11px] font-bold uppercase tracking-wider">
                 <Sparkles className="size-3" />
                 <span>Muvaffaqiyatli qabul qilindi</span>
               </div>
-              <h3 className="text-2xl font-black text-ink">
+              <h3 className="text-2xl font-black text-white">
                 Rahmat, {submittedLead?.name}!
               </h3>
-              <p className="text-sm text-muted max-w-sm mx-auto leading-relaxed">
+              <p className="text-sm text-slate-300 max-w-sm mx-auto leading-relaxed">
                 Sizning arizangiz ma'lumotlar bazasiga kiritildi va mas'ul mutaxassisimizga yetkazildi.
               </p>
             </div>
 
             {/* Submitted Summary Details */}
             {submittedLead && (
-              <div className="p-4 rounded-card bg-surface border border-line text-xs space-y-2 text-left">
-                <div className="flex justify-between border-b border-line/60 pb-1.5">
-                  <span className="text-muted">Telefon raqam:</span>
-                  <span className="font-bold text-ink">{submittedLead.phone}</span>
+              <div className="p-4 rounded-card bg-[#060c18] border border-blue-500/20 text-xs space-y-2 text-left">
+                <div className="flex justify-between border-b border-blue-500/15 pb-1.5">
+                  <span className="text-slate-400">Telefon raqam:</span>
+                  <span className="font-bold text-white">{submittedLead.phone}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted">Tanlangan yo'nalish:</span>
-                  <span className="font-bold text-brand">{submittedLead.service}</span>
+                  <span className="text-slate-400">Tanlangan yo'nalish:</span>
+                  <span className="font-bold text-sky-400">{submittedLead.service}</span>
                 </div>
               </div>
             )}
 
-            <div className="p-3 rounded-control bg-brand/5 border border-brand/20 text-xs text-ink/80 flex items-center justify-center gap-2">
-              <Clock className="size-4 text-brand shrink-0" />
+            <div className="p-3 rounded-control bg-blue-500/10 border border-blue-500/20 text-xs text-slate-200 flex items-center justify-center gap-2">
+              <Clock className="size-4 text-sky-400 shrink-0" />
               <span>
                 Menejerimiz <strong>15 daqiqa ichida</strong> siz bilan telefon orqali bog'lanadi.
               </span>
@@ -411,7 +411,7 @@ export function ConsultationForm({
                 href={site.telegram}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-control bg-telegram text-white text-xs font-bold hover:bg-telegram/90 transition-colors shadow-xs"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-control bg-gradient-to-r from-blue-600 to-sky-600 text-white text-xs font-bold hover:from-blue-500 hover:to-sky-500 transition-all shadow-[0_0_15px_rgba(2,132,199,0.4)]"
               >
                 <MessageCircle className="size-4" />
                 <span>Telegramda zudlik bilan bog'lanish</span>
@@ -419,7 +419,7 @@ export function ConsultationForm({
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-control bg-surface border border-line text-ink text-xs font-bold hover:bg-line/40 transition-colors cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-control bg-blue-500/10 border border-blue-500/20 text-slate-300 text-xs font-bold hover:bg-blue-500/20 hover:text-white transition-colors cursor-pointer"
               >
                 Tushunarli / Yopish
               </button>

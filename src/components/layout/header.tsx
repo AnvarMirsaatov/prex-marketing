@@ -38,7 +38,7 @@ export function Header({ locale }: { locale: Locale }) {
     return (
       <nav
         aria-label={messages.navigationLabel}
-        className={mobile ? "grid gap-1" : "flex flex-wrap items-center gap-1"}
+        className={mobile ? "grid gap-1.5" : "flex flex-wrap items-center gap-1.5"}
       >
         {navigationKeys.map((page) => {
           const href = localizedPath(locale, page);
@@ -50,7 +50,11 @@ export function Header({ locale }: { locale: Locale }) {
               href={href}
               onClick={() => setOpen(false)}
               aria-current={active ? "page" : undefined}
-              className={`rounded-control px-3 py-3 text-label font-semibold transition-colors hover:bg-surface ${active ? "text-brand" : "text-ink"}`}
+              className={`rounded-control px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
+                active
+                  ? "text-sky-400 bg-blue-500/10 border border-blue-500/25 shadow-[0_0_12px_rgba(56,189,248,0.15)]"
+                  : "text-slate-300 hover:text-white hover:bg-white/[0.05] border border-transparent"
+              }`}
             >
               {messages.pages[page]}
             </Link>
@@ -60,17 +64,19 @@ export function Header({ locale }: { locale: Locale }) {
     );
   }
   return (
-    <header ref={root} className="relative z-40 border-b border-line bg-paper">
+    <header ref={root} className="sticky top-0 z-50 border-b border-blue-500/15 bg-[#050b14]/80 backdrop-blur-xl transition-all duration-300">
       <Container>
         <div className="flex min-h-20 flex-wrap items-center justify-between gap-3 py-3">
           <Link
             href={localizedPath(locale, "home")}
-            className="text-lg font-black leading-tight tracking-tight"
+            className="group flex flex-col leading-tight tracking-tight focus-visible:outline-none"
             aria-label={site.name}
           >
-            {site.wordmark}
-            <span className="text-brand">.</span>
-            <span className="block text-xs font-semibold tracking-widest">
+            <span className="text-xl font-black tracking-tight text-white group-hover:text-slate-100 transition-colors">
+              {site.wordmark}
+              <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
+            </span>
+            <span className="block text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
               {site.wordmarkDescriptor}
             </span>
           </Link>
@@ -78,15 +84,15 @@ export function Header({ locale }: { locale: Locale }) {
           <div className="flex items-center gap-2.5">
             <a
               href={site.phoneHref}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-bold text-ink hover:text-brand hover:bg-surface transition-colors"
+              className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-control text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/[0.05] border border-blue-500/15 hover:border-blue-500/30 transition-all duration-200"
             >
-              <Phone className="size-3.5 text-brand" />
+              <Phone className="size-3.5 text-sky-400" />
               <span>{site.phone}</span>
             </a>
             <LanguageSwitcher locale={locale} label={messages.languageLabel} />
             <Link
               href="#consultation"
-              className="hidden md:inline-flex items-center justify-center px-4 py-2 rounded-control bg-brand text-paper text-label font-bold hover:bg-brand-hover transition-colors shadow-xs"
+              className="hidden md:inline-flex items-center justify-center px-4 py-2 rounded-control bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-[0_0_20px_rgba(37,99,235,0.35)] hover:shadow-[0_0_28px_rgba(56,189,248,0.5)] border border-blue-400/30 hover:scale-[1.02] active:scale-[0.98]"
             >
               {locale === "uz" ? "Bepul konsultatsiya" : "Бесплатная консультация"}
             </Link>
@@ -97,7 +103,7 @@ export function Header({ locale }: { locale: Locale }) {
               aria-controls="mobile-navigation"
               aria-label={open ? messages.design.closeMenu : messages.design.openMenu}
               onClick={() => setOpen(!open)}
-              className="flex size-12 items-center justify-center rounded-control border border-line xl:hidden"
+              className="flex size-11 items-center justify-center rounded-control border border-blue-500/20 bg-blue-500/10 text-white hover:bg-blue-500/20 transition-colors xl:hidden"
             >
               <svg
                 aria-hidden="true"
@@ -112,20 +118,20 @@ export function Header({ locale }: { locale: Locale }) {
             </button>
           </div>
         </div>
-        <div id="mobile-navigation" hidden={!open} className="border-t border-line py-3 xl:hidden space-y-3">
+        <div id="mobile-navigation" hidden={!open} className="border-t border-blue-500/20 bg-[#07101f]/95 backdrop-blur-2xl p-4 rounded-b-2xl xl:hidden space-y-4 shadow-2xl">
           {navigation(true)}
-          <div className="pt-2 border-t border-line/60 space-y-2">
+          <div className="pt-3 border-t border-blue-500/15 space-y-2.5">
             <a
               href={site.phoneHref}
-              className="flex w-full items-center justify-center gap-2 py-2.5 rounded-control border border-line text-ink text-xs font-bold hover:text-brand transition-colors"
+              className="flex w-full items-center justify-center gap-2 py-2.5 rounded-control border border-blue-500/20 bg-blue-500/5 text-slate-200 text-xs font-bold hover:text-white hover:bg-blue-500/15 transition-colors"
             >
-              <Phone className="size-3.5 text-brand" />
+              <Phone className="size-3.5 text-sky-400" />
               <span>{site.phone}</span>
             </a>
             <Link
               href="#consultation"
               onClick={() => setOpen(false)}
-              className="flex w-full items-center justify-center py-3 rounded-control bg-brand text-paper text-sm font-bold hover:bg-brand-hover transition-colors shadow-xs"
+              className="flex w-full items-center justify-center py-3 rounded-control bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-blue-400/30 transition-all"
             >
               {locale === "uz" ? "Bepul konsultatsiya" : "Бесплатная консультация"}
             </Link>

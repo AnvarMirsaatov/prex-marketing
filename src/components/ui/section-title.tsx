@@ -3,7 +3,6 @@ export function SectionTitle({
   eyebrow,
   description,
   as: Heading = "h2",
-  inverse = false,
 }: {
   title: string;
   eyebrow?: string;
@@ -12,21 +11,19 @@ export function SectionTitle({
   inverse?: boolean;
 }) {
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="max-w-3xl space-y-3">
       {eyebrow && (
-        <p
-          className={`text-label font-bold uppercase tracking-widest ${inverse ? "text-accent" : "text-brand"}`}
-        >
+        <p className="text-xs font-bold uppercase tracking-widest text-sky-400">
           {eyebrow}
         </p>
       )}
       <Heading
-        className={`${Heading === "h1" ? "text-display" : "text-heading"} font-bold tracking-tight ${inverse ? "text-paper" : "text-ink"}`}
+        className={`${Heading === "h1" ? "text-display" : "text-heading"} font-black tracking-tight text-white leading-tight`}
       >
         {title}
       </Heading>
       {description && (
-        <p className={`max-w-2xl text-body ${inverse ? "text-paper" : "text-muted"}`}>
+        <p className="max-w-2xl text-body text-slate-300 leading-relaxed">
           {description}
         </p>
       )}

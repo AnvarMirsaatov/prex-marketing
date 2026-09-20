@@ -113,22 +113,24 @@ export function ServicesPage({ locale }: { locale: Locale }) {
   return (
     <div className="py-12 sm:py-16 space-y-16 sm:space-y-24">
       {/* 1. HERO BANNER */}
-      <section>
+      <section className="relative">
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 size-96 rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
         <Container>
           <Reveal>
             <div className="max-w-3xl">
-              <span className="inline-block text-xs font-bold uppercase tracking-widest text-brand mb-3">
-                {isUz ? "TZ 7-bo'lim &bull; Xizmatlar Katalogi" : "Раздел 7 ТЗ &bull; Каталог услуг"}
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider mb-4">
+                <Sparkles className="size-3.5" />
+                <span>{isUz ? "TZ 7-bo'lim • Xizmatlar Katalogi" : "Раздел 7 ТЗ • Каталог услуг"}</span>
               </span>
-              <h1 className="text-display font-black tracking-tight text-ink leading-tight mb-6">
+              <h1 className="text-display font-black tracking-tight text-white leading-tight mb-5">
                 {isUz ? "Bizning Xizmatlarimiz" : "Наши Услуги"}
               </h1>
-              <p className="text-lg sm:text-xl text-ink font-medium leading-relaxed mb-4">
+              <p className="text-lg sm:text-xl text-slate-200 font-medium leading-relaxed mb-3">
                 {isUz
                   ? "Biznesingizni tizimli o'stirish va sotuvlarni oshirish uchun 3 ta asosiy yo'nalish"
                   : "3 ключевых направления для системного масштабирования продаж вашего бизнеса"}
               </p>
-              <p className="text-sm text-muted leading-relaxed max-w-2xl">
+              <p className="text-sm text-slate-400 leading-relaxed max-w-2xl">
                 {isUz
                   ? "Har bir yo'nalish o'z sohasining mutaxassislari tomonidan chuqur tahlil va aniq maqsadlar asosida amalga oshiriladi."
                   : "Каждое направление реализуется профильными специалистами на основе глубокой аналитики и четких KPI."}
@@ -147,24 +149,25 @@ export function ServicesPage({ locale }: { locale: Locale }) {
               <div
                 key={svc.id}
                 id={svc.id}
-                className="scroll-mt-8 p-8 sm:p-12 rounded-panel bg-paper border border-line shadow-card hover:border-brand/40 transition-colors"
+                className="scroll-mt-8 p-8 sm:p-12 rounded-3xl bg-[#0a1326]/80 backdrop-blur-md border border-blue-500/15 shadow-[0_12px_40px_-15px_rgba(3,7,18,0.6)] hover:border-blue-500/35 hover:shadow-[0_16px_50px_-10px_rgba(37,99,235,0.12)] transition-all duration-300 relative overflow-hidden group"
               >
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 pb-8 border-b border-line">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8 pb-8 border-b border-blue-500/15">
                   <div className="space-y-3 max-w-2xl">
                     <div className="flex items-center gap-3">
-                      <div className="size-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center">
-                        <Icon className="size-6" />
+                      <div className="size-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-sky-400 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <Icon className="size-7" />
                       </div>
                       <div>
-                        <span className="text-xs font-bold uppercase tracking-widest text-brand">
+                        <span className="text-xs font-bold uppercase tracking-widest text-sky-400">
                           Yo'nalish {svc.index} &bull; {svc.category}
                         </span>
-                        <h2 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                           {svc.title}
                         </h2>
                       </div>
                     </div>
-                    <p className="text-sm text-muted leading-relaxed">{svc.desc}</p>
+                    <p className="text-sm text-slate-300 leading-relaxed">{svc.desc}</p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -183,8 +186,8 @@ export function ServicesPage({ locale }: { locale: Locale }) {
 
                 {/* Features grid */}
                 <div className="pt-8">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink mb-6 flex items-center gap-2">
-                    <ShieldCheck className="size-4 text-brand" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-6 flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-sky-400" />
                     <span>{isUz ? "Xizmat tarkibiga quyidagilar kiradi:" : "В состав услуги входит:"}</span>
                   </h3>
 
@@ -192,10 +195,10 @@ export function ServicesPage({ locale }: { locale: Locale }) {
                     {svc.features.map((feat, fIndex) => (
                       <div
                         key={fIndex}
-                        className="p-5 rounded-card bg-surface border border-line/70 flex items-start gap-3"
+                        className="p-5 rounded-2xl bg-[#0d1a36]/60 border border-blue-500/10 hover:border-blue-500/25 transition-colors flex items-start gap-3"
                       >
-                        <CheckCircle2 className="size-4 text-brand shrink-0 mt-0.5" />
-                        <p className="text-xs text-ink font-medium leading-relaxed">{feat}</p>
+                        <CheckCircle2 className="size-4 text-sky-400 shrink-0 mt-0.5" />
+                        <p className="text-xs text-slate-200 font-medium leading-relaxed">{feat}</p>
                       </div>
                     ))}
                   </div>
@@ -207,48 +210,49 @@ export function ServicesPage({ locale }: { locale: Locale }) {
       </section>
 
       {/* 3. APPLICATION / CONSULTATION FORM ANCHOR */}
-      <section id="consultation" className="scroll-mt-8 bg-surface py-16 border-t border-line">
-        <Container className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+      <section id="consultation" className="scroll-mt-8 bg-gradient-to-b from-transparent via-[#070e1d] to-[#040812] py-16 sm:py-24 border-t border-blue-500/15 relative overflow-hidden">
+        <div className="absolute -left-20 top-1/3 size-96 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
+        <Container className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider mb-4">
               <Sparkles className="size-3.5" />
               <span>{isUz ? "Ariza qoldirish" : "Подача заявки"}</span>
             </div>
 
-            <h2 className="text-heading font-black tracking-tight text-ink">
+            <h2 className="text-heading font-black tracking-tight text-white">
               {isUz ? "Xizmatlarga buyurtma berish" : "Заказ услуг и расчет сметы"}
             </h2>
 
-            <p className="mt-4 text-muted text-sm leading-relaxed mb-8">
+            <p className="mt-4 text-slate-300 text-sm leading-relaxed mb-8">
               {isUz
                 ? "O'zingizga ma'qul bo'lgan xizmat turini tanlang va aloqa ma'lumotlaringizni qoldiring. Mutaxassisimiz 15 daqiqa ichida bog'lanib, loyihangiz bo'yicha batafsil konsultatsiya beradi."
                 : "Выберите интересующее направление и оставьте контактные данные. Наш специалист свяжется с вами в течение 15 минут для обсуждения деталей."}
             </p>
 
-            <div className="space-y-4 pt-4 border-t border-line">
+            <div className="space-y-4 pt-4 border-t border-blue-500/15">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <div className="size-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sky-400 flex items-center justify-center shrink-0">
                   <Phone className="size-5" />
                 </div>
                 <div>
-                  <span className="block text-xs text-muted">Telefon:</span>
-                  <a href={site.phoneHref} className="text-base font-bold text-ink hover:text-brand">
+                  <span className="block text-xs text-slate-400">Telefon:</span>
+                  <a href={site.phoneHref} className="text-base font-bold text-white hover:text-sky-400 transition-colors">
                     {site.phone}
                   </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-telegram/10 text-telegram flex items-center justify-center shrink-0">
+                <div className="size-11 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
                   <Send className="size-5" />
                 </div>
                 <div>
-                  <span className="block text-xs text-muted">Telegram:</span>
+                  <span className="block text-xs text-slate-400">Telegram:</span>
                   <a
                     href={site.telegram}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-base font-bold text-telegram hover:underline"
+                    className="text-base font-bold text-sky-400 hover:underline"
                   >
                     {site.telegramLabel}
                   </a>
@@ -257,11 +261,12 @@ export function ServicesPage({ locale }: { locale: Locale }) {
             </div>
           </div>
 
-          <div className="rounded-panel border border-line bg-paper p-6 sm:p-10 shadow-card">
-            <h3 className="text-lg font-bold text-ink mb-1">
+          <div className="rounded-3xl border border-blue-500/20 bg-[#0a1326]/90 backdrop-blur-xl p-6 sm:p-10 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+            <h3 className="text-lg font-bold text-white mb-1">
               {isUz ? "Ariza formasi" : "Форма заявки"}
             </h3>
-            <p className="text-xs text-muted mb-6">
+            <p className="text-xs text-slate-400 mb-6">
               {isUz
                 ? "Maydonlarni to'ldiring, ma'lumotlar to'g'ridan-to'g'ri mas'ul mutaxassisga yuboriladi:"
                 : "Заполните поля, и запрос мгновенно поступит нашему менеджеру:"}

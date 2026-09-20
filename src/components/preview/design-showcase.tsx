@@ -25,7 +25,7 @@ export function DesignShowcase({ locale }: { locale: Locale }) {
   }).format(previewPricing.amount);
   return (
     <>
-      <section className="bg-surface py-section">
+      <section className="bg-[#0a1326]/60 border-b border-blue-500/15 py-section">
         <Container>
           <SectionTitle as="h1" eyebrow={t.eyebrow} title={t.title} description={t.intro} />
           <div className="mt-8 flex flex-wrap gap-3">
@@ -41,10 +41,10 @@ export function DesignShowcase({ locale }: { locale: Locale }) {
           <SectionTitle title={t.tokens} />
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[
-              { label: t.brand, style: "bg-brand text-paper" },
-              { label: t.accent, style: "bg-accent text-ink" },
-              { label: t.ink, style: "bg-ink text-paper" },
-              { label: t.surface, style: "bg-surface text-ink" },
+              { label: t.brand, style: "bg-brand text-white" },
+              { label: t.accent, style: "bg-accent text-white" },
+              { label: t.ink, style: "bg-white text-slate-950" },
+              { label: t.surface, style: "bg-[#0a1326] text-white border border-blue-500/20" },
             ].map((color) => (
               <div
                 key={color.label}
@@ -82,7 +82,7 @@ export function DesignShowcase({ locale }: { locale: Locale }) {
                 href={contact}
                 actionLabel={t.primary}
               />
-              <div className="rounded-card bg-accent p-6 sm:p-8">
+              <div className="rounded-card bg-[#0d1f47]/80 border border-blue-500/20 p-6 sm:p-8">
                 <SectionTitle title={t.pricing} />
                 <div className="mt-6">
                   <PricingCard

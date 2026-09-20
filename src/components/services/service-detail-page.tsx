@@ -229,12 +229,13 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
   return (
     <div className="py-12 sm:py-16 space-y-16 sm:space-y-24">
       {/* 1. HERO SECTION */}
-      <section>
-        <Container>
+      <section className="relative">
+        <div className="absolute -top-12 left-1/3 size-96 rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
+        <Container className="relative z-10">
           <div className="mb-6">
             <Link
               href={localizedPath(locale, "services")}
-              className="inline-flex items-center gap-2 text-xs font-bold text-muted hover:text-brand transition-colors"
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-sky-400 transition-colors"
             >
               <ArrowLeft className="size-4" />
               <span>{isUz ? "Barcha xizmatlarga qaytish" : "Назад ко всем услугам"}</span>
@@ -242,18 +243,18 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
           </div>
 
           <div className="max-w-4xl space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider">
               <Icon className="size-3.5" />
               <span>{item.category}</span>
             </div>
 
-            <h1 className="text-display font-black tracking-tight text-ink leading-tight">
+            <h1 className="text-display font-black tracking-tight text-white leading-tight">
               {item.title}
             </h1>
 
-            <p className="text-xl font-bold text-brand leading-snug">{item.headline}</p>
+            <p className="text-xl font-bold text-sky-400 leading-snug">{item.headline}</p>
 
-            <p className="text-sm sm:text-base text-muted leading-relaxed max-w-3xl">
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
               {item.description}
             </p>
 
@@ -271,16 +272,16 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
       </section>
 
       {/* 2. DETAILED FEATURES */}
-      <section className="bg-surface py-14 sm:py-20 border-y border-line">
+      <section className="bg-gradient-to-b from-transparent via-[#070e1d] to-transparent py-14 sm:py-20 border-y border-blue-500/15">
         <Container>
           <div className="max-w-2xl mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-brand mb-2 block">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-400 mb-2 block">
               {isUz ? "Batafsil tarkib" : "Подробный состав"}
             </span>
-            <h2 className="text-heading font-black tracking-tight text-ink">
+            <h2 className="text-heading font-black tracking-tight text-white">
               {isUz ? "Xizmat doirasidagi asosiy ishlar" : "Ключевые этапы и состав работ"}
             </h2>
-            <p className="text-xs text-muted mt-2">
+            <p className="text-xs text-slate-400 mt-2">
               {isUz
                 ? "TZ 7-bo'limiga binoan quyidagi barcha vazifalar to'liq amalga oshiriladi:"
                 : "В соответствии с разделом 7 ТЗ выполняются следующие задачи:"}
@@ -291,16 +292,16 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
             {item.features.map((feat, idx) => (
               <div
                 key={idx}
-                className="p-6 rounded-card bg-paper border border-line flex flex-col justify-between interactive-card shadow-sm"
+                className="p-6 rounded-2xl bg-[#0a1326]/80 backdrop-blur-md border border-blue-500/15 flex flex-col justify-between interactive-card shadow-[0_8px_30px_-10px_rgba(2,6,23,0.6)]"
               >
                 <div>
-                  <div className="size-9 rounded-lg bg-brand/10 text-brand flex items-center justify-center font-bold text-xs mb-4">
+                  <div className="size-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sky-400 flex items-center justify-center font-bold text-xs mb-4">
                     0{idx + 1}
                   </div>
-                  <h3 className="text-base font-bold text-ink mb-2">{feat.title}</h3>
-                  <p className="text-xs text-muted leading-relaxed">{feat.desc}</p>
+                  <h3 className="text-base font-bold text-white mb-2">{feat.title}</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">{feat.desc}</p>
                 </div>
-                <div className="mt-5 pt-3 border-t border-line/60 flex items-center gap-1.5 text-[11px] font-semibold text-brand">
+                <div className="mt-5 pt-3 border-t border-blue-500/15 flex items-center gap-1.5 text-[11px] font-semibold text-sky-400">
                   <CheckCircle2 className="size-3.5" />
                   <span>{isUz ? "Kafolatlangan xizmat" : "Гарантированная услуга"}</span>
                 </div>
@@ -311,48 +312,49 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
       </section>
 
       {/* 3. DIRECT INQUIRY FORM */}
-      <section id="consultation" className="scroll-mt-8 py-16 bg-paper">
-        <Container className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+      <section id="consultation" className="scroll-mt-8 py-16 sm:py-24 bg-gradient-to-b from-transparent to-[#040812] relative overflow-hidden">
+        <div className="absolute -right-20 top-1/2 -translate-y-1/2 size-96 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
+        <Container className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400 text-xs font-bold uppercase tracking-wider mb-4">
               <Sparkles className="size-3.5" />
               <span>{isUz ? "Ariza topshirish" : "Подача заявки"}</span>
             </div>
 
-            <h2 className="text-heading font-black tracking-tight text-ink">
+            <h2 className="text-heading font-black tracking-tight text-white">
               {isUz ? "Ushbu xizmat bo'yicha bepul smeta oling" : "Получите расчет стоимости услуги"}
             </h2>
 
-            <p className="mt-4 text-muted text-sm leading-relaxed mb-8">
+            <p className="mt-4 text-slate-300 text-sm leading-relaxed mb-8">
               {isUz
                 ? "Maydonlarni to'ldiring, 15 daqiqa ichida mas'ul mutaxassisimiz siz bilan bog'lanib, loyihangiz talablari va muddatlarini muhokama qiladi."
                 : "Заполните форму, и наш эксперт свяжется с вами в течение 15 минут для обсуждения требований и сроков проекта."}
             </p>
 
-            <div className="space-y-4 pt-4 border-t border-line">
+            <div className="space-y-4 pt-4 border-t border-blue-500/15">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <div className="size-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sky-400 flex items-center justify-center shrink-0">
                   <Phone className="size-5" />
                 </div>
                 <div>
-                  <span className="block text-xs text-muted">Telefon orqali:</span>
-                  <a href={site.phoneHref} className="text-base font-bold text-ink hover:text-brand">
+                  <span className="block text-xs text-slate-400">Telefon orqali:</span>
+                  <a href={site.phoneHref} className="text-base font-bold text-white hover:text-sky-400 transition-colors">
                     {site.phone}
                   </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-telegram/10 text-telegram flex items-center justify-center shrink-0">
+                <div className="size-11 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
                   <Send className="size-5" />
                 </div>
                 <div>
-                  <span className="block text-xs text-muted">Telegram:</span>
+                  <span className="block text-xs text-slate-400">Telegram:</span>
                   <a
                     href={site.telegram}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-base font-bold text-telegram hover:underline"
+                    className="text-base font-bold text-sky-400 hover:underline"
                   >
                     {site.telegramLabel}
                   </a>
@@ -361,11 +363,12 @@ export function ServiceDetailPage({ locale, slug }: ServiceDetailProps) {
             </div>
           </div>
 
-          <div className="rounded-panel border border-line bg-surface p-6 sm:p-10 shadow-card">
-            <h3 className="text-lg font-bold text-ink mb-1">
+          <div className="rounded-3xl border border-blue-500/20 bg-[#0a1326]/90 backdrop-blur-xl p-6 sm:p-10 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+            <h3 className="text-lg font-bold text-white mb-1">
               {isUz ? "Ariza qoldirish" : "Оставить заявку"}
             </h3>
-            <p className="text-xs text-muted mb-6">
+            <p className="text-xs text-slate-400 mb-6">
               {isUz
                 ? `${item.title} bo'yicha buyurtma so'rovi:`
                 : `Запрос на услугу ${item.title}:`}
