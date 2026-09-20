@@ -19,6 +19,7 @@ import {
   KeyRound,
   Shield,
   Sliders,
+  History,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -40,6 +41,7 @@ const SUPER_ADMIN_NAV = [
   { href: "/admin/team", label: "Jamoa", icon: UserCheck },
   { href: "/admin/settings", label: "Sozlamalar", icon: Settings },
   { href: "/admin/users", label: "Adminlar", icon: UserCog },
+  { href: "/admin/audit", label: "Harakatlar tarixi", icon: History },
   { href: "/admin/security", label: "Xavfsizlik & Parol", icon: KeyRound },
 ];
 

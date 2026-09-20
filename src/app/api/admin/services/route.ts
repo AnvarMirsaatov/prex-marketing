@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -38,6 +39,13 @@ export async function POST(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "SERVICE_CREATED",
+      "Services",
+      `${session.name} yangi '${service.titleUz}' xizmatini qo'shdi`
+    );
+
     return NextResponse.json({ success: true, service }, { status: 201 });
   } catch (error) {
     console.error("Error creating service:", error);
@@ -74,6 +82,13 @@ export async function PUT(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "SERVICE_UPDATED",
+      "Services",
+      `${session.name} '${updated.titleUz}' xizmatini yangiladi`
+    );
+
     return NextResponse.json({ success: true, service: updated });
   } catch (error) {
     console.error("Error updating service:", error);
@@ -94,7 +109,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID talab qilinadi" }, { status: 400 });
     }
 
+    const existing = await prisma.service.findUnique({ where: { id } });
     await prisma.service.delete({ where: { id } });
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "SERVICE_DELETED",
+        "Services",
+        `${session.name} '${existing.titleUz}' xizmatini o'chirdi`
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting service:", error);

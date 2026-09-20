@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logAdminAction } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
@@ -103,6 +104,13 @@ export async function POST(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "ADMIN_CREATED",
+      "Users",
+      `${session.name} yangi admin yaratdi: ${newUser.name} (@${newUser.username}, ${newUser.role})`
+    );
+
     return NextResponse.json({ success: true, user: newUser }, { status: 201 });
   } catch (error) {
     console.error("Users POST error:", error);
@@ -182,6 +190,13 @@ export async function PATCH(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "ADMIN_UPDATED",
+      "Users",
+      `${session.name} '${targetUser.name}' (@${targetUser.username}) admin ma'lumotlarini yangiladi`
+    );
+
     return NextResponse.json({ success: true, user: updated });
   } catch (error) {
     console.error("Users PATCH error:", error);
@@ -236,6 +251,13 @@ export async function DELETE(request: Request) {
     }
 
     await prisma.adminUser.delete({ where: { id } });
+
+    await logAdminAction(
+      session,
+      "ADMIN_DELETED",
+      "Users",
+      `${session.name} '${targetUser.name}' (@${targetUser.username}) admin hisobini o'chirdi`
+    );
 
     return NextResponse.json({ success: true, message: "Foydalanuvchi o'chirildi" });
   } catch (error) {

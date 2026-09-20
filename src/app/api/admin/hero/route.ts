@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 
 export async function GET() {
@@ -72,6 +73,13 @@ export async function POST(request: Request) {
       revalidatePath("/ru");
     } catch {}
 
+    await logAdminAction(
+      session,
+      "HERO_SLIDE_CREATED",
+      "Hero",
+      `${session.name} yangi '${slide.titleUz}' Hero slaydini qo'shdi`
+    );
+
     return NextResponse.json({ success: true, slide }, { status: 201 });
   } catch (error) {
     console.error("Hero slide POST error:", error);
@@ -106,6 +114,13 @@ export async function PUT(request: Request) {
         revalidatePath("/uz");
         revalidatePath("/ru");
       } catch {}
+
+      await logAdminAction(
+        session,
+        "HERO_REORDERED",
+        "Hero",
+        `${session.name} Hero slaydlari ketma-ketligini yangiladi`
+      );
 
       return NextResponse.json({ success: true, message: "Ketma-ketlik yangilandi" });
     }
@@ -153,6 +168,13 @@ export async function PUT(request: Request) {
       revalidatePath("/ru");
     } catch {}
 
+    await logAdminAction(
+      session,
+      "HERO_SLIDE_UPDATED",
+      "Hero",
+      `${session.name} '${updated.titleUz}' Hero slaydini tahrirladi`
+    );
+
     return NextResponse.json({ success: true, slide: updated });
   } catch (error) {
     console.error("Hero slide PUT error:", error);
@@ -184,12 +206,22 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Slayd ID ko'rsatilmadi" }, { status: 400 });
     }
 
+    const existing = await prisma.heroSlide.findUnique({ where: { id } });
     await prisma.heroSlide.delete({ where: { id } });
 
     try {
       revalidatePath("/uz");
       revalidatePath("/ru");
     } catch {}
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "HERO_SLIDE_DELETED",
+        "Hero",
+        `${session.name} '${existing.titleUz}' Hero slaydini o'chirdi`
+      );
+    }
 
     return NextResponse.json({ success: true, message: "Slayd o'chirildi" });
   } catch (error) {

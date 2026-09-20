@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -84,6 +85,13 @@ export async function PUT(request: Request) {
         telegramChatId,
       },
     });
+
+    await logAdminAction(
+      session,
+      "SETTINGS_UPDATED",
+      "Settings",
+      `${session.name} sayt sozlamalarini (aloqa ma'lumotlari, ijtimoiy tarmoqlar) yangiladi`
+    );
 
     return NextResponse.json({ success: true, settings: updated });
   } catch (error) {

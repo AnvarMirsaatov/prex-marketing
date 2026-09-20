@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -33,6 +34,13 @@ export async function POST(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "PARTNER_CREATED",
+      "Partners",
+      `${session.name} yangi '${partner.name}' hamkorini qo'shdi`
+    );
+
     return NextResponse.json({ success: true, partner }, { status: 201 });
   } catch (error) {
     console.error("Error creating partner:", error);
@@ -63,6 +71,13 @@ export async function PUT(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "PARTNER_UPDATED",
+      "Partners",
+      `${session.name} '${updated.name}' hamkor ma'lumotlarini yangiladi`
+    );
+
     return NextResponse.json({ success: true, partner: updated });
   } catch (error) {
     console.error("Error updating partner:", error);
@@ -83,7 +98,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID talab qilinadi" }, { status: 400 });
     }
 
+    const existing = await prisma.partner.findUnique({ where: { id } });
     await prisma.partner.delete({ where: { id } });
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "PARTNER_DELETED",
+        "Partners",
+        `${session.name} '${existing.name}' hamkorini o'chirdi`
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting partner:", error);

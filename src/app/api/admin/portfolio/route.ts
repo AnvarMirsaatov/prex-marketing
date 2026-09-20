@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         titleRu,
         descUz,
         descRu,
-        imageUrl: imageUrl || "/portfolio/sample.jpg",
+        imageUrl,
         category: category || "SMM",
         clientName: clientName || null,
         projectUrl: projectUrl || null,
@@ -52,9 +53,16 @@ export async function POST(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "PORTFOLIO_CREATED",
+      "Portfolio",
+      `${session.name} yangi '${item.titleUz}' portfolio keysini qo'shdi`
+    );
+
     return NextResponse.json({ success: true, item }, { status: 201 });
   } catch (error) {
-    console.error("Error creating portfolio item:", error);
+    console.error("Error creating portfolio:", error);
     return NextResponse.json({ error: "Xatolik yuz berdi" }, { status: 500 });
   }
 }
@@ -103,6 +111,13 @@ export async function PUT(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "PORTFOLIO_UPDATED",
+      "Portfolio",
+      `${session.name} '${updated.titleUz}' portfolio keysini yangiladi`
+    );
+
     return NextResponse.json({ success: true, item: updated });
   } catch (error) {
     console.error("Error updating portfolio:", error);
@@ -123,7 +138,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID talab qilinadi" }, { status: 400 });
     }
 
+    const existing = await prisma.portfolio.findUnique({ where: { id } });
     await prisma.portfolio.delete({ where: { id } });
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "PORTFOLIO_DELETED",
+        "Portfolio",
+        `${session.name} '${existing.titleUz}' portfolio keysini o'chirdi`
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting portfolio:", error);

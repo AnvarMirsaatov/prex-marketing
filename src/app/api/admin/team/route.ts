@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -9,7 +10,7 @@ export async function GET() {
     });
     return NextResponse.json({ team });
   } catch (error) {
-    console.error("Error fetching team members:", error);
+    console.error("Error fetching team:", error);
     return NextResponse.json({ error: "Xatolik yuz berdi" }, { status: 500 });
   }
 }
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
     });
+
+    await logAdminAction(
+      session,
+      "TEAM_MEMBER_CREATED",
+      "Team",
+      `${session.name} yangi '${member.name}' jamoa a'zosini qo'shdi`
+    );
 
     return NextResponse.json({ success: true, member }, { status: 201 });
   } catch (error) {
@@ -74,6 +82,13 @@ export async function PUT(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "TEAM_MEMBER_UPDATED",
+      "Team",
+      `${session.name} '${updated.name}' jamoa a'zosi ma'lumotlarini yangiladi`
+    );
+
     return NextResponse.json({ success: true, member: updated });
   } catch (error) {
     console.error("Error updating team member:", error);
@@ -94,7 +109,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID talab qilinadi" }, { status: 400 });
     }
 
+    const existing = await prisma.teamMember.findUnique({ where: { id } });
     await prisma.teamMember.delete({ where: { id } });
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "TEAM_MEMBER_DELETED",
+        "Team",
+        `${session.name} '${existing.name}' jamoa a'zosini o'chirdi`
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting team member:", error);

@@ -109,17 +109,24 @@ model TeamMember {
 
 // 6. Leads (kelib tushgan so'rovlar: ism, telefon, xizmat_turi, izoh, status: yangi/ko'rildi/yopildi)
 model Lead {
-  id          String   @id @default(cuid())
-  name        String
-  phone       String
-  serviceType String   // SMM, Marketing, IT, or specific service
-  comment     String?
-  status      String   @default("yangi") // yangi, ko'rildi, yopildi
-  source      String   @default("website_form")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String     @id @default(cuid())
+  name           String
+  phone          String
+  serviceType    String   // SMM, Marketing, IT, or specific service
+  comment        String?
+  status         String     @default("yangi") // yangi, ko'rildi, yopildi
+  source         String     @default("website_form")
+  assignedToId   String?
+  assignedTo     AdminUser? @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  lastActionById String?
+  lastActionBy   AdminUser? @relation("LastActionLeads", fields: [lastActionById], references: [id])
+  lastActionAt   DateTime?
+  notes          String?    // JSON string: [{ id, text, authorId, authorName, authorRole, createdAt }]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   @@index([status])
+  @@index([assignedToId])
   @@index([createdAt])
 }
 
@@ -148,13 +155,16 @@ model SiteSettings {
 
 // 8. Admin foydalanuvchilar
 model AdminUser {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  passwordHash String
-  name         String
-  role         String   @default("ADMIN") // SUPER_ADMIN, ADMIN
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String      @id @default(cuid())
+  username        String      @unique
+  passwordHash    String
+  name            String
+  role            String      @default("ADMIN") // SUPER_ADMIN, ADMIN
+  assignedLeads   Lead[]      @relation("AssignedLeads")
+  lastActionLeads Lead[]      @relation("LastActionLeads")
+  auditLogs       AuditLog[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 // 9. Hero Carousel Slaydlari (Bosh sahifa bannerlari)
@@ -178,4 +188,22 @@ model HeroSlide {
   @@index([order])
   @@index([isActive])
 }
+
+// 10. Harakatlar jurnali (Audit Log)
+model AuditLog {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id])
+  userName  String?
+  userRole  String?
+  action    String     // LID_STATUS_UPDATED, LID_ASSIGNED, LID_NOTE_ADDED, PRICE_CHANGED, HERO_SLIDE_UPDATED, etc.
+  entity    String     // Leads, Tariffs, Hero, Services, Settings, Users, Security, etc.
+  details   String     // Tushunarli tavsif
+  createdAt DateTime   @default(now())
+
+  @@index([entity])
+  @@index([userId])
+  @@index([createdAt])
+}
+
 

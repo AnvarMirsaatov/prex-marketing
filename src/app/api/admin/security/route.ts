@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logAdminAction } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
@@ -47,6 +48,13 @@ export async function POST(request: Request) {
       where: { id: session.userId },
       data: { passwordHash: newHash },
     });
+
+    await logAdminAction(
+      session,
+      "PASSWORD_CHANGED",
+      "Security",
+      `${session.name} (@${session.username}) o'z hisobi parolini yangiladi`
+    );
 
     return NextResponse.json({
       success: true,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { logAdminAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -53,6 +54,13 @@ export async function POST(request: Request) {
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
     });
+
+    await logAdminAction(
+      session,
+      "TARIFF_CREATED",
+      "Tariffs",
+      `${session.name} yangi '${tariff.nameUz}' tarifini yaratdi (${tariff.price})`
+    );
 
     return NextResponse.json({ success: true, tariff }, { status: 201 });
   } catch (error) {
@@ -107,6 +115,13 @@ export async function PUT(request: Request) {
       },
     });
 
+    await logAdminAction(
+      session,
+      "TARIFF_UPDATED",
+      "Tariffs",
+      `${session.name} '${updated.nameUz}' tarifini yangiladi (Narxi: ${updated.price})`
+    );
+
     return NextResponse.json({ success: true, tariff: updated });
   } catch (error) {
     console.error("Error updating tariff:", error);
@@ -127,7 +142,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID talab qilinadi" }, { status: 400 });
     }
 
+    const existing = await prisma.tariff.findUnique({ where: { id } });
     await prisma.tariff.delete({ where: { id } });
+
+    if (existing) {
+      await logAdminAction(
+        session,
+        "TARIFF_DELETED",
+        "Tariffs",
+        `${session.name} '${existing.nameUz}' tarifini o'chirdi`
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting tariff:", error);
