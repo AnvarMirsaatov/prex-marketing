@@ -106,26 +106,14 @@ export function AdminNav() {
       {/* Brand header */}
       <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-blue-900/20">
         <div>
-          {logoUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <div
-              style={{
-                width: `${Math.min(logoWidth, 140)}px`,
-                height: `${logoHeight ?? 36}px`,
-                maxWidth: "140px",
-              }}
-            >
-              <img
-                src={logoUrl}
-                alt="Prox Logo"
-                className="w-full h-full object-contain object-left mb-1"
-              />
-            </div>
-          ) : (
-            <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-              PROX <span className="text-sky-400">.</span>
-            </span>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="w-[160px] h-[45px]">
+            <img
+              src={logoUrl || "/logo.png"}
+              alt="Prox Logo"
+              className="w-full h-full object-contain object-left"
+            />
+          </div>
           <span className="text-[10px] font-bold uppercase tracking-wider block text-blue-300/60 mt-0.5">
             Boshqaruv Paneli
           </span>
@@ -240,24 +228,14 @@ export function AdminNav() {
           >
             <Menu className="size-6" />
           </button>
-          {logoUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <div
-              style={{
-                width: `${Math.min(logoWidth, 110)}px`,
-                height: "32px",
-                maxWidth: "110px",
-              }}
-            >
-              <img
-                src={logoUrl}
-                alt="Prox Logo"
-                className="w-full h-full object-contain object-left"
-              />
-            </div>
-          ) : (
-            <span className="font-black text-lg text-white">PROX ADMIN</span>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="w-[120px] h-[34px]">
+            <img
+              src={logoUrl || "/logo.png"}
+              alt="Prox Logo"
+              className="w-full h-full object-contain object-left"
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <FollowUpBell />

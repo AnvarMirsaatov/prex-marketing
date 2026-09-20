@@ -82,34 +82,17 @@ export function Header({
             className="group flex flex-col leading-tight tracking-tight focus-visible:outline-none"
             aria-label={site.name}
           >
-            {logoUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <div
-                style={{
-                  width: `${logoWidth ?? 180}px`,
-                  height: `${logoHeight ?? 48}px`,
-                  maxWidth: "180px",
-                  flexShrink: 0,
-                }}
-                className="flex items-center"
-              >
-                <img
-                  src={logoUrl}
-                  alt={site.name}
-                  className="w-full h-full object-contain object-left"
-                />
-              </div>
-            ) : (
-              <>
-                <span className="text-xl font-black tracking-tight text-white group-hover:text-slate-100 transition-colors">
-                  {site.wordmark}
-                  <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
-                </span>
-                <span className="block text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-                  {site.wordmarkDescriptor}
-                </span>
-              </>
-            )}
+            {/* Always render logo — DB url takes priority, /logo.png is the fallback */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <div
+              className="w-[160px] h-[45px] flex items-center flex-shrink-0"
+            >
+              <img
+                src={logoUrl || "/logo.png"}
+                alt={site.name}
+                className="w-full h-full object-contain object-left"
+              />
+            </div>
           </Link>
           <div className="hidden xl:block">{navigation()}</div>
           <div className="flex items-center gap-2.5">

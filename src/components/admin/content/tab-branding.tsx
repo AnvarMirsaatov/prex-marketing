@@ -87,7 +87,8 @@ export function TabBranding() {
           logoWidth: data.settings.logoWidth ?? 160,
           logoHeight: data.settings.logoHeight ?? 45,
         }));
-        if (data.settings.logoHeight === null || data.settings.logoHeight === undefined) {
+        // autoHeight only if logoHeight was explicitly stored as null
+        if (data.settings.logoHeight === null) {
           setAutoHeight(true);
         } else {
           setAutoHeight(false);
@@ -231,51 +232,39 @@ export function TabBranding() {
               Jonli Ko'rinish (Live Preview)
             </span>
 
-            {form.logoUrl ? (
-              <div className="w-full flex flex-col items-center justify-center">
-                {/* Fixed-size container — image always fills it proportionally */}
-                <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 flex items-center justify-center overflow-hidden">
-                  <div
-                    style={{
-                      width: `${form.logoWidth ?? 160}px`,
-                      height: autoHeight || !form.logoHeight ? "auto" : `${form.logoHeight}px`,
-                      minHeight: "40px",
-                      maxWidth: "100%",
-                      maxHeight: "100px",
+            {/* Always show preview — custom logo or /logo.png fallback */}
+            <div className="w-full flex flex-col items-center justify-center">
+              <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 flex items-center justify-center overflow-hidden">
+                <div
+                  style={{
+                    width: `${form.logoWidth ?? 160}px`,
+                    height: autoHeight || !form.logoHeight ? "45px" : `${form.logoHeight}px`,
+                    maxWidth: "100%",
+                  }}
+                  className="flex items-center justify-center"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={form.logoUrl || "/logo.png"}
+                    alt="Site Logo Preview"
+                    className="w-full h-full object-contain object-center transition-all duration-150 group-hover:scale-105"
+                    onError={(e) => {
+                      // If /logo.png also fails, hide silently
+                      (e.target as HTMLImageElement).style.opacity = "0";
                     }}
-                    className="flex items-center justify-center"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={form.logoUrl}
-                      alt="Site Logo Preview"
-                      className="w-full h-full object-contain object-center transition-all duration-150 group-hover:scale-105"
-                      onError={() => {
-                        showToast("Logotip rasmini yuklab bo'lmadi, manzilni tekshiring", "error");
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="mt-2.5 text-[11px] text-slate-400 flex items-center gap-2">
-                  <span className="font-semibold text-sky-400">
-                    O'lcham: {form.logoWidth || 160}px ×{" "}
-                    {autoHeight || !form.logoHeight
-                      ? "Auto (proporsional)"
-                      : `${form.logoHeight}px`}
-                  </span>
+                  />
                 </div>
               </div>
-            ) : (
-              <div className="space-y-1">
-                <span className="text-3xl font-black tracking-tight text-white flex items-center justify-center gap-1">
-                  {form.logoText || "PROX"}
-                  <span className="text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.7)]">.</span>
+              <div className="mt-2.5 text-[11px] text-slate-400 flex items-center gap-2">
+                <span className="font-semibold text-sky-400">
+                  O&apos;lcham: {form.logoWidth || 160}px ×{" "}
+                  {autoHeight || !form.logoHeight ? "45px (auto)" : `${form.logoHeight}px`}
                 </span>
-                <span className="block text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-                  Marketing Agency
-                </span>
+                {!form.logoUrl && (
+                  <span className="text-slate-500 italic">(/logo.png standart)</span>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Upload & URL Controls */}

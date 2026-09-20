@@ -27,32 +27,15 @@ export function Footer({
       <Container className="grid gap-10 pb-16 pt-16 md:grid-cols-2 lg:grid-cols-3 relative z-10">
         <div className="space-y-6">
           <div>
-            {logoUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <div
-                style={{
-                  width: `${logoWidth ?? 200}px`,
-                  height: `${logoHeight ?? 52}px`,
-                  maxWidth: "200px",
-                }}
-              >
-                <img
-                  src={logoUrl}
-                  alt={site.name}
-                  className="w-full h-full object-contain object-left"
-                />
-              </div>
-            ) : (
-              <>
-                <span className="text-2xl font-black tracking-tight text-white">
-                  {site.wordmark}
-                  <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
-                </span>
-                <span className="block text-xs font-semibold tracking-widest text-slate-400 mt-0.5 uppercase">
-                  {site.wordmarkDescriptor}
-                </span>
-              </>
-            )}
+            {/* Always render logo — DB url takes priority, /logo.png is the fallback */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <div className="w-[160px] h-[45px]">
+              <img
+                src={logoUrl || "/logo.png"}
+                alt={site.name}
+                className="w-full h-full object-contain object-left"
+              />
+            </div>
           </div>
           <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
             {locale === "uz"
