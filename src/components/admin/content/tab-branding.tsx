@@ -233,22 +233,28 @@ export function TabBranding() {
 
             {form.logoUrl ? (
               <div className="w-full flex flex-col items-center justify-center">
-                <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 max-w-full flex items-center justify-center min-h-[90px] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={form.logoUrl}
-                    alt="Site Logo Preview"
+                {/* Fixed-size container — image always fills it proportionally */}
+                <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 flex items-center justify-center overflow-hidden">
+                  <div
                     style={{
-                      width: form.logoWidth ? `${form.logoWidth}px` : "160px",
+                      width: `${form.logoWidth ?? 160}px`,
                       height: autoHeight || !form.logoHeight ? "auto" : `${form.logoHeight}px`,
-                      maxHeight: "90px",
+                      minHeight: "40px",
                       maxWidth: "100%",
+                      maxHeight: "100px",
                     }}
-                    className="object-contain mx-auto transition-all duration-150 group-hover:scale-105"
-                    onError={() => {
-                      showToast("Logotip rasmini yuklab bo'lmadi, manzilni tekshiring", "error");
-                    }}
-                  />
+                    className="flex items-center justify-center"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={form.logoUrl}
+                      alt="Site Logo Preview"
+                      className="w-full h-full object-contain object-center transition-all duration-150 group-hover:scale-105"
+                      onError={() => {
+                        showToast("Logotip rasmini yuklab bo'lmadi, manzilni tekshiring", "error");
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="mt-2.5 text-[11px] text-slate-400 flex items-center gap-2">
                   <span className="font-semibold text-sky-400">

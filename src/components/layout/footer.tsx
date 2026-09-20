@@ -10,9 +10,13 @@ import { FooterCopyright } from "@/components/layout/footer-copyright";
 export function Footer({
   locale,
   logoUrl,
+  logoWidth,
+  logoHeight,
 }: {
   locale: Locale;
   logoUrl?: string | null;
+  logoWidth?: number | null;
+  logoHeight?: number | null;
 }) {
   const messages = getMessages(locale);
   return (
@@ -25,11 +29,19 @@ export function Footer({
           <div>
             {logoUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={logoUrl}
-                alt={site.name}
-                className="h-9 w-auto max-w-[190px] object-contain"
-              />
+              <div
+                style={{
+                  width: `${logoWidth ?? 200}px`,
+                  height: `${logoHeight ?? 52}px`,
+                  maxWidth: "200px",
+                }}
+              >
+                <img
+                  src={logoUrl}
+                  alt={site.name}
+                  className="w-full h-full object-contain object-left"
+                />
+              </div>
             ) : (
               <>
                 <span className="text-2xl font-black tracking-tight text-white">

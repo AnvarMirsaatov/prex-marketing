@@ -45,6 +45,8 @@ export function AdminNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoWidth, setLogoWidth] = useState<number>(160);
+  const [logoHeight, setLogoHeight] = useState<number | null>(45);
 
   useEffect(() => {
     async function checkAuth() {
@@ -53,9 +55,9 @@ export function AdminNav() {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user || null);
-          if (data.logoUrl) {
-            setLogoUrl(data.logoUrl);
-          }
+          if (data.logoUrl) setLogoUrl(data.logoUrl);
+          if (data.logoWidth) setLogoWidth(data.logoWidth);
+          if (data.logoHeight !== undefined) setLogoHeight(data.logoHeight);
         }
       } catch (e) {
         console.error("Auth check failed:", e);
@@ -64,9 +66,15 @@ export function AdminNav() {
     checkAuth();
 
     const handler = (e: Event) => {
-      const customEvent = e as CustomEvent<{ logoUrl?: string | null }>;
+      const customEvent = e as CustomEvent<{ logoUrl?: string | null; logoWidth?: number | null; logoHeight?: number | null }>;
       if (customEvent.detail?.logoUrl !== undefined) {
         setLogoUrl(customEvent.detail.logoUrl);
+      }
+      if (customEvent.detail?.logoWidth != null) {
+        setLogoWidth(customEvent.detail.logoWidth);
+      }
+      if (customEvent.detail?.logoHeight !== undefined) {
+        setLogoHeight(customEvent.detail.logoHeight);
       }
     };
     window.addEventListener("prox-logo-updated", handler);
@@ -100,7 +108,19 @@ export function AdminNav() {
         <div>
           {logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={logoUrl} alt="Prox Logo" className="h-7 w-auto max-w-[140px] object-contain mb-1" />
+            <div
+              style={{
+                width: `${Math.min(logoWidth, 140)}px`,
+                height: `${logoHeight ?? 36}px`,
+                maxWidth: "140px",
+              }}
+            >
+              <img
+                src={logoUrl}
+                alt="Prox Logo"
+                className="w-full h-full object-contain object-left mb-1"
+              />
+            </div>
           ) : (
             <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
               PROX <span className="text-sky-400">.</span>
@@ -222,7 +242,19 @@ export function AdminNav() {
           </button>
           {logoUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={logoUrl} alt="Prox Logo" className="h-6 w-auto max-w-[120px] object-contain" />
+            <div
+              style={{
+                width: `${Math.min(logoWidth, 110)}px`,
+                height: "32px",
+                maxWidth: "110px",
+              }}
+            >
+              <img
+                src={logoUrl}
+                alt="Prox Logo"
+                className="w-full h-full object-contain object-left"
+              />
+            </div>
           ) : (
             <span className="font-black text-lg text-white">PROX ADMIN</span>
           )}

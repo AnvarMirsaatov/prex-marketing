@@ -123,7 +123,7 @@ export default async function LocaleLayout({
   const messages = getMessages(locale);
   const settings = await prisma.siteSettings.findUnique({
     where: { id: "default" },
-    select: { logoUrl: true },
+    select: { logoUrl: true, logoWidth: true, logoHeight: true },
   });
 
   return (
@@ -136,11 +136,11 @@ export default async function LocaleLayout({
           >
             {messages.skipToContent}
           </a>
-          <Header locale={locale} logoUrl={settings?.logoUrl} />
+          <Header locale={locale} logoUrl={settings?.logoUrl} logoWidth={settings?.logoWidth} logoHeight={settings?.logoHeight} />
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <Footer locale={locale} logoUrl={settings?.logoUrl} />
+          <Footer locale={locale} logoUrl={settings?.logoUrl} logoWidth={settings?.logoWidth} logoHeight={settings?.logoHeight} />
           <TelegramChat label={messages.design.telegramChat} />
         </ToastProvider>
       </body>

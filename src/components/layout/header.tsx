@@ -13,9 +13,13 @@ import { Phone } from "lucide-react";
 export function Header({
   locale,
   logoUrl,
+  logoWidth,
+  logoHeight,
 }: {
   locale: Locale;
   logoUrl?: string | null;
+  logoWidth?: number | null;
+  logoHeight?: number | null;
 }) {
   const messages = getMessages(locale);
   const pathname = usePathname();
@@ -80,11 +84,21 @@ export function Header({
           >
             {logoUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={logoUrl}
-                alt={site.name}
-                className="h-8 md:h-9 w-auto max-w-[180px] object-contain"
-              />
+              <div
+                style={{
+                  width: `${logoWidth ?? 180}px`,
+                  height: `${logoHeight ?? 48}px`,
+                  maxWidth: "180px",
+                  flexShrink: 0,
+                }}
+                className="flex items-center"
+              >
+                <img
+                  src={logoUrl}
+                  alt={site.name}
+                  className="w-full h-full object-contain object-left"
+                />
+              </div>
             ) : (
               <>
                 <span className="text-xl font-black tracking-tight text-white group-hover:text-slate-100 transition-colors">
