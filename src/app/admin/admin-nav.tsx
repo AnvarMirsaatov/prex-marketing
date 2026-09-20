@@ -5,12 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Inbox,
-  Briefcase,
-  Tags,
-  Users,
-  Image,
-  UserCheck,
-  Settings,
   ExternalLink,
   LogOut,
   Menu,
@@ -18,8 +12,8 @@ import {
   UserCog,
   KeyRound,
   Shield,
-  Sliders,
   History,
+  Layers,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -32,14 +26,8 @@ interface CurrentUser {
 
 const SUPER_ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/hero", label: "Hero Karusel", icon: Sliders },
   { href: "/admin/leads", label: "So'rovlar (Leads)", icon: Inbox },
-  { href: "/admin/services", label: "Xizmatlar", icon: Briefcase },
-  { href: "/admin/tariffs", label: "Tariflar", icon: Tags },
-  { href: "/admin/partners", label: "Hamkorlar", icon: Users },
-  { href: "/admin/portfolio", label: "Portfolio", icon: Image },
-  { href: "/admin/team", label: "Jamoa", icon: UserCheck },
-  { href: "/admin/settings", label: "Sozlamalar", icon: Settings },
+  { href: "/admin/content", label: "Sayt kontenti", icon: Layers },
   { href: "/admin/users", label: "Adminlar", icon: UserCog },
   { href: "/admin/audit", label: "Harakatlar tarixi", icon: History },
   { href: "/admin/security", label: "Xavfsizlik & Parol", icon: KeyRound },
@@ -55,6 +43,7 @@ export function AdminNav() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<CurrentUser | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -63,12 +52,24 @@ export function AdminNav() {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user || null);
+          if (data.logoUrl) {
+            setLogoUrl(data.logoUrl);
+          }
         }
       } catch (e) {
         console.error("Auth check failed:", e);
       }
     }
     checkAuth();
+
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ logoUrl?: string | null }>;
+      if (customEvent.detail?.logoUrl !== undefined) {
+        setLogoUrl(customEvent.detail.logoUrl);
+      }
+    };
+    window.addEventListener("prox-logo-updated", handler);
+    return () => window.removeEventListener("prox-logo-updated", handler);
   }, []);
 
   // If on login page, do not render sidebar
@@ -96,9 +97,14 @@ export function AdminNav() {
       {/* Brand header */}
       <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-blue-900/20">
         <div>
-          <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-            PROX <span className="text-sky-400">.</span>
-          </span>
+          {logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={logoUrl} alt="Prox Logo" className="h-7 w-auto max-w-[140px] object-contain mb-1" />
+          ) : (
+            <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
+              PROX <span className="text-sky-400">.</span>
+            </span>
+          )}
           <span className="text-[10px] font-bold uppercase tracking-wider block text-blue-300/60 mt-0.5">
             Boshqaruv Paneli
           </span>
@@ -211,7 +217,12 @@ export function AdminNav() {
           >
             <Menu className="size-6" />
           </button>
-          <span className="font-black text-lg text-white">PROX ADMIN</span>
+          {logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={logoUrl} alt="Prox Logo" className="h-6 w-auto max-w-[110px] object-contain" />
+          ) : (
+            <span className="font-black text-lg text-white">PROX ADMIN</span>
+          )}
         </div>
         <Link
           href="/uz"

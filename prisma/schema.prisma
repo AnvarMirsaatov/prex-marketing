@@ -130,9 +130,11 @@ model Lead {
   @@index([createdAt])
 }
 
-// 7. SiteSettings (telefon: +998 20 026 04 18, instagram: @prox_uz, telegram: @manager_prox, hero_matnlari)
+// 7. SiteSettings (telefon: +998 20 026 04 18, instagram: @prox_uz, telegram: @manager_prox, hero_matnlari, logotip)
 model SiteSettings {
   id                String   @id @default("default")
+  logoUrl           String?
+  logoText          String?  @default("PROX")
   phone             String   @default("+998 20 026 04 18")
   phoneHref         String   @default("tel:+998200260418")
   instagram         String   @default("https://www.instagram.com/prox_uz/")

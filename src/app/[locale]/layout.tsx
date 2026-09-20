@@ -8,6 +8,7 @@ import { getLocale } from "@/i18n/get-locale";
 import { getMessages } from "@/i18n/messages";
 import { site } from "@/config/site";
 import { ToastProvider } from "@/components/providers/toast-provider";
+import { prisma } from "@/lib/prisma";
 import "@/app/globals.css";
 
 export async function generateMetadata({
@@ -120,6 +121,11 @@ export default async function LocaleLayout({
 }) {
   const locale = await getLocale(params);
   const messages = getMessages(locale);
+  const settings = await prisma.siteSettings.findUnique({
+    where: { id: "default" },
+    select: { logoUrl: true },
+  });
+
   return (
     <html lang={locale}>
       <body className="flex min-h-dvh flex-col">
@@ -130,11 +136,11 @@ export default async function LocaleLayout({
           >
             {messages.skipToContent}
           </a>
-          <Header locale={locale} />
+          <Header locale={locale} logoUrl={settings?.logoUrl} />
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <Footer locale={locale} />
+          <Footer locale={locale} logoUrl={settings?.logoUrl} />
           <TelegramChat label={messages.design.telegramChat} />
         </ToastProvider>
       </body>

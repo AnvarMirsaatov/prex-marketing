@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import {
   verifyAdminCredentials,
   setAdminSession,
@@ -43,5 +44,13 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ authenticated: false }, { status: 401 });
   }
-  return NextResponse.json({ authenticated: true, user: session });
+  const settings = await prisma.siteSettings.findUnique({
+    where: { id: "default" },
+    select: { logoUrl: true, logoText: true },
+  });
+  return NextResponse.json({
+    authenticated: true,
+    user: session,
+    logoUrl: settings?.logoUrl || null,
+  });
 }

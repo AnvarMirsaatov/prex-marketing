@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { logAdminAction } from "@/lib/audit";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   try {
@@ -24,6 +25,8 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const {
+      logoUrl,
+      logoText,
       phone,
       phoneHref,
       instagram,
@@ -43,9 +46,17 @@ export async function PUT(request: Request) {
       telegramChatId,
     } = body;
 
+    const existing = await prisma.siteSettings.findUnique({
+      where: { id: "default" },
+    });
+
+    const isLogoChanged = existing?.logoUrl !== logoUrl;
+
     const updated = await prisma.siteSettings.upsert({
       where: { id: "default" },
       update: {
+        logoUrl: logoUrl !== undefined ? (logoUrl?.trim() || null) : existing?.logoUrl,
+        logoText: logoText !== undefined ? (logoText?.trim() || "PROX") : existing?.logoText,
         phone,
         phoneHref: phoneHref || `tel:${(phone || "").replace(/[^\d+]/g, "")}`,
         instagram,
@@ -66,6 +77,8 @@ export async function PUT(request: Request) {
       },
       create: {
         id: "default",
+        logoUrl: logoUrl?.trim() || null,
+        logoText: logoText?.trim() || "PROX",
         phone: phone || "+998 20 026 04 18",
         phoneHref: phoneHref || "tel:+998200260418",
         instagram: instagram || "https://www.instagram.com/prox_uz/",
@@ -86,12 +99,27 @@ export async function PUT(request: Request) {
       },
     });
 
-    await logAdminAction(
-      session,
-      "SETTINGS_UPDATED",
-      "Settings",
-      `${session.name} sayt sozlamalarini (aloqa ma'lumotlari, ijtimoiy tarmoqlar) yangiladi`
-    );
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/uz");
+      revalidatePath("/ru");
+    } catch {}
+
+    if (isLogoChanged) {
+      await logAdminAction(
+        session,
+        "LOGO_UPDATED",
+        "Settings",
+        `${session.name} sayt logotipini yangiladi`
+      );
+    } else {
+      await logAdminAction(
+        session,
+        "SETTINGS_UPDATED",
+        "Settings",
+        `${session.name} sayt asosiy sozlamalarini (aloqa, ijtimoiy tarmoqlar) yangiladi`
+      );
+    }
 
     return NextResponse.json({ success: true, settings: updated });
   } catch (error) {

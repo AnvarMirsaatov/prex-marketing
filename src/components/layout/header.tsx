@@ -10,7 +10,13 @@ import type { Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { Phone } from "lucide-react";
 
-export function Header({ locale }: { locale: Locale }) {
+export function Header({
+  locale,
+  logoUrl,
+}: {
+  locale: Locale;
+  logoUrl?: string | null;
+}) {
   const messages = getMessages(locale);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -72,13 +78,24 @@ export function Header({ locale }: { locale: Locale }) {
             className="group flex flex-col leading-tight tracking-tight focus-visible:outline-none"
             aria-label={site.name}
           >
-            <span className="text-xl font-black tracking-tight text-white group-hover:text-slate-100 transition-colors">
-              {site.wordmark}
-              <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
-            </span>
-            <span className="block text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-              {site.wordmarkDescriptor}
-            </span>
+            {logoUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={logoUrl}
+                alt={site.name}
+                className="h-8 md:h-9 w-auto max-w-[180px] object-contain"
+              />
+            ) : (
+              <>
+                <span className="text-xl font-black tracking-tight text-white group-hover:text-slate-100 transition-colors">
+                  {site.wordmark}
+                  <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
+                </span>
+                <span className="block text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+                  {site.wordmarkDescriptor}
+                </span>
+              </>
+            )}
           </Link>
           <div className="hidden xl:block">{navigation()}</div>
           <div className="flex items-center gap-2.5">

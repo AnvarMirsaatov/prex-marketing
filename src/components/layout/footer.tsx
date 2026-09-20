@@ -7,7 +7,13 @@ import type { Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { FooterCopyright } from "@/components/layout/footer-copyright";
 
-export function Footer({ locale }: { locale: Locale }) {
+export function Footer({
+  locale,
+  logoUrl,
+}: {
+  locale: Locale;
+  logoUrl?: string | null;
+}) {
   const messages = getMessages(locale);
   return (
     <footer className="border-t border-blue-500/15 bg-[#030712] text-slate-300 relative overflow-hidden">
@@ -17,13 +23,24 @@ export function Footer({ locale }: { locale: Locale }) {
       <Container className="grid gap-10 pb-16 pt-16 md:grid-cols-2 lg:grid-cols-3 relative z-10">
         <div className="space-y-6">
           <div>
-            <span className="text-2xl font-black tracking-tight text-white">
-              {site.wordmark}
-              <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
-            </span>
-            <span className="block text-xs font-semibold tracking-widest text-slate-400 mt-0.5 uppercase">
-              {site.wordmarkDescriptor}
-            </span>
+            {logoUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={logoUrl}
+                alt={site.name}
+                className="h-9 w-auto max-w-[190px] object-contain"
+              />
+            ) : (
+              <>
+                <span className="text-2xl font-black tracking-tight text-white">
+                  {site.wordmark}
+                  <span className="text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]">.</span>
+                </span>
+                <span className="block text-xs font-semibold tracking-widest text-slate-400 mt-0.5 uppercase">
+                  {site.wordmarkDescriptor}
+                </span>
+              </>
+            )}
           </div>
           <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
             {locale === "uz"
