@@ -5,6 +5,7 @@ import { PricingCard } from "@/components/ui/pricing-card";
 import { Reveal } from "@/components/ui/reveal";
 import { PartnerSlider } from "@/components/home/partner-slider";
 import { ConsultationForm } from "@/components/home/consultation-form";
+import { HeroCarousel } from "@/components/home/hero-carousel";
 import { localizedPath, serviceKeys } from "@/config/routes";
 import { site } from "@/config/site";
 import { partners, smmPlans, marketingStartingAmount, pricingCurrency } from "@/data/home";
@@ -15,7 +16,6 @@ import {
   BarChart3,
   Sparkles,
   Layers,
-  ArrowRight,
   Phone,
   Send,
   CheckCircle2,
@@ -37,85 +37,8 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   return (
     <>
-      {/* 1. HERO BANNER */}
-      <section
-        aria-labelledby="hero-title"
-        className="relative bg-[#050b14] text-white py-20 sm:py-28 lg:py-32 overflow-hidden border-b border-blue-500/15"
-      >
-        {/* Deep Blue Spotlight & Radial Ambient Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] sm:w-[900px] h-[450px] bg-gradient-to-tr from-blue-700/20 via-sky-500/15 to-transparent rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Subtle geometric grid background overlay */}
-        <div className="absolute inset-0 opacity-[0.035] pointer-events-none bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:32px_32px]" />
-
-        <Container className="relative z-10">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-blue-950/60 border border-blue-500/30 text-sky-300 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md shadow-[0_0_15px_rgba(56,189,248,0.15)]">
-              <span className="size-2 rounded-full bg-sky-400 animate-ping" />
-              <span>{t.hero.eyebrow}</span>
-            </div>
-
-            <h1
-              id="hero-title"
-              className="text-display font-black tracking-tight leading-[1.06] text-balance mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-sky-200 drop-shadow-sm"
-            >
-              {t.hero.title}
-            </h1>
-
-            <p className="text-body text-slate-300 max-w-2xl text-lg sm:text-xl leading-relaxed mb-10 font-normal">
-              {t.hero.description}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <ButtonLink
-                href="#consultation"
-                variant="primary"
-                className="shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:shadow-[0_0_35px_rgba(56,189,248,0.6)]"
-              >
-                <span>{t.hero.action}</span>
-                <ArrowRight className="size-4" />
-              </ButtonLink>
-              <ButtonLink
-                href="#services"
-                variant="outline"
-                className="border-blue-500/30 hover:border-sky-400/60 hover:bg-blue-500/10 text-slate-200 hover:text-white"
-              >
-                {t.hero.secondary}
-              </ButtonLink>
-            </div>
-
-            {/* Metrics */}
-            <div className="mt-14 pt-10 border-t border-blue-500/15 grid grid-cols-2 sm:grid-cols-3 gap-6">
-              <div className="p-4 rounded-xl bg-blue-950/20 border border-blue-500/10 backdrop-blur-sm">
-                <span className="block text-3xl sm:text-4xl font-black text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.3)]">
-                  {t.hero.stat1}
-                </span>
-                <span className="text-xs sm:text-sm text-slate-400 font-medium mt-1 block">
-                  {t.hero.stat1Label}
-                </span>
-              </div>
-              <div className="p-4 rounded-xl bg-blue-950/20 border border-blue-500/10 backdrop-blur-sm">
-                <span className="block text-3xl sm:text-4xl font-black text-white">
-                  {t.hero.stat2}
-                </span>
-                <span className="text-xs sm:text-sm text-slate-400 font-medium mt-1 block">
-                  {t.hero.stat2Label}
-                </span>
-              </div>
-              <div className="col-span-2 sm:col-span-1 p-4 rounded-xl bg-blue-950/20 border border-blue-500/10 backdrop-blur-sm">
-                <span className="block text-3xl sm:text-4xl font-black text-sky-400 drop-shadow-[0_0_12px_rgba(56,189,248,0.3)]">
-                  {t.hero.stat3}
-                </span>
-                <span className="text-xs sm:text-sm text-slate-400 font-medium mt-1 block">
-                  {t.hero.stat3Label}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
+      {/* 1. HERO CAROUSEL (CINEMATIC TRAILER SLIDER) */}
+      <HeroCarousel locale={locale} />
 
       {/* 2. SERVICES PREVIEW SECTION */}
       <section id="services" aria-labelledby="services-title" className="py-section scroll-mt-6 bg-[#050b14]">

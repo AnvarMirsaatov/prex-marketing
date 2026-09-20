@@ -1,14 +1,13 @@
 import { Container } from "@/components/layout/container";
-import { ButtonLink } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { ConsultationForm } from "@/components/home/consultation-form";
+import { TariffSelectButton } from "@/components/pricing/tariff-select-button";
 import { prisma } from "@/lib/prisma";
 import { site } from "@/config/site";
 import type { Locale } from "@/i18n/config";
 import {
   Check,
   Sparkles,
-  ArrowRight,
   Phone,
   Send,
   HelpCircle,
@@ -88,7 +87,7 @@ export async function PricingPage({ locale }: { locale: Locale }) {
               return (
                 <div
                   key={t.id}
-                  className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between transition-all relative overflow-hidden ${
+                  className={`interactive-card p-6 sm:p-8 rounded-3xl border flex flex-col justify-between transition-all relative overflow-hidden ${
                     t.isPopular
                       ? "bg-gradient-to-b from-[#0d1f47]/95 to-[#0a1326]/95 backdrop-blur-xl border-blue-500/50 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.28)] ring-1 ring-sky-400/25 scale-[1.02]"
                       : "bg-[#0a1326]/80 backdrop-blur-md border-blue-500/15 shadow-[0_12px_40px_-15px_rgba(3,7,18,0.6)] hover:border-blue-500/35 hover:shadow-[0_16px_50px_-10px_rgba(37,99,235,0.12)]"
@@ -133,14 +132,13 @@ export async function PricingPage({ locale }: { locale: Locale }) {
                     </ul>
                   </div>
 
-                  <ButtonLink
-                    href={`#consultation`}
+                  <TariffSelectButton
+                    tariffName={isUz ? t.nameUz : t.nameRu}
+                    serviceType="SMM"
+                    label={isUz ? "Ushbu paketni tanlash" : "Выбрать этот пакет"}
                     variant={t.isPopular ? "primary" : "outline"}
                     className="w-full mt-auto"
-                  >
-                    <span>{isUz ? "Ushbu paketni tanlash" : "Выбрать этот пакет"}</span>
-                    <ArrowRight className="size-4" />
-                  </ButtonLink>
+                  />
                 </div>
               );
             })}
@@ -212,10 +210,13 @@ export async function PricingPage({ locale }: { locale: Locale }) {
                     </ul>
                   </div>
 
-                  <ButtonLink href="#consultation" className="w-full sm:w-auto">
-                    <span>{isUz ? "Marketing rejasi olish" : "Получить план маркетинга"}</span>
-                    <ArrowRight className="size-4" />
-                  </ButtonLink>
+                  <TariffSelectButton
+                    tariffName={isUz ? t.nameUz : t.nameRu}
+                    serviceType="Marketing"
+                    label={isUz ? "Marketing rejasi olish" : "Получить план маркетинга"}
+                    variant="primary"
+                    className="w-full sm:w-auto"
+                  />
                 </div>
               );
             })}
@@ -238,10 +239,10 @@ export async function PricingPage({ locale }: { locale: Locale }) {
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-sky-400">
-                        TZ 8.3 &bull; IT Yechimlar
+                        TZ 8.3 &bull; IT & Dev
                       </span>
                       <span className="text-xs text-slate-400 font-medium">
-                        {isUz ? "Individual buyurtma" : "Индивидуальный заказ"}
+                        {isUz ? "Texnik topshiriq asosida" : "По техническому заданию"}
                       </span>
                     </div>
 
@@ -250,17 +251,15 @@ export async function PricingPage({ locale }: { locale: Locale }) {
                     </h3>
                     <p className="text-xs text-slate-300 mb-6">
                       {isUz
-                        ? "Har bir loyiha individual buyurtma asosida kelishiladi va bepul smeta taqdim etiladi."
-                        : "Каждый проект согласовывается индивидуально на основе технического задания."}
+                        ? "Landing page, korporativ sayt, mobil ilova yoki AI bot loyihangiz uchun individual narx."
+                        : "Индивидуальный расчет для лендингов, корпоративных порталов, мобильных приложений или AI-ботов."}
                     </p>
 
                     <div className="my-6 p-4 rounded-2xl bg-[#0d1a36]/70 border border-blue-500/15 flex items-baseline gap-2">
                       <span className="text-xs font-bold text-slate-400 uppercase">
-                        {isUz ? "Narxlash tartibi:" : "Формат расчета:"}
+                        {isUz ? "Baholash:" : "Оценка:"}
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-sky-400">
-                        {isUz ? "Individual Smeta" : "Индивидуальная смета"}
-                      </span>
+                      <span className="text-2xl sm:text-3xl font-black text-white">{t.price}</span>
                     </div>
 
                     <ul className="space-y-3 pt-2 text-xs mb-8">
@@ -273,10 +272,13 @@ export async function PricingPage({ locale }: { locale: Locale }) {
                     </ul>
                   </div>
 
-                  <ButtonLink href="#consultation" variant="primary" className="w-full sm:w-auto shadow-md">
-                    <span>{isUz ? "Bepul smeta / taklif olish" : "Получить бесплатную смету"}</span>
-                    <ArrowRight className="size-4" />
-                  </ButtonLink>
+                  <TariffSelectButton
+                    tariffName={isUz ? t.nameUz : t.nameRu}
+                    serviceType="IT xizmatlari"
+                    label={isUz ? "Bepul smeta / taklif olish" : "Получить бесплатную смету"}
+                    variant="primary"
+                    className="w-full sm:w-auto shadow-md"
+                  />
                 </div>
               );
             })}

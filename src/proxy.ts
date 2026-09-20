@@ -17,6 +17,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("prox_admin_token")?.value;
     let isAuthenticated = false;
+    let userRole = "admin";
 
     if (token) {
       try {
@@ -25,6 +26,7 @@ export function proxy(request: NextRequest) {
           const payload = JSON.parse(Buffer.from(data, "base64url").toString("utf8"));
           if (payload && typeof payload.expiresAt === "number" && payload.expiresAt > Date.now()) {
             isAuthenticated = true;
+            userRole = payload.role || "admin";
           }
         }
       } catch {
@@ -34,7 +36,8 @@ export function proxy(request: NextRequest) {
 
     if (pathname === "/admin/login") {
       if (isAuthenticated) {
-        return NextResponse.redirect(new URL("/admin", request.url));
+        const target = userRole === "super_admin" ? "/admin" : "/admin/leads";
+        return NextResponse.redirect(new URL(target, request.url));
       }
       return NextResponse.next();
     }
@@ -46,6 +49,11 @@ export function proxy(request: NextRequest) {
         response.cookies.delete("prox_admin_token");
       }
       return response;
+    }
+
+    // Role-based route restriction: Admin (manager) ONLY has access to /admin/leads and /admin/security
+    if (userRole === "admin" && pathname !== "/admin/leads" && pathname !== "/admin/security") {
+      return NextResponse.redirect(new URL("/admin/leads", request.url));
     }
   }
 

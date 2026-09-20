@@ -5,7 +5,7 @@ import { localizedPath, navigationKeys } from "@/config/routes";
 import { site } from "@/config/site";
 import type { Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
-import { Lock } from "lucide-react";
+import { FooterCopyright } from "@/components/layout/footer-copyright";
 
 export function Footer({ locale }: { locale: Locale }) {
   const messages = getMessages(locale);
@@ -84,17 +84,7 @@ export function Footer({ locale }: { locale: Locale }) {
 
       <div className="border-t border-blue-500/10 py-6 text-center text-[11px] text-slate-500">
         <Container>
-          <div className="flex items-center justify-center gap-2">
-            <span>© {new Date().getFullYear()} {site.name}. Barcha huquqlar himoyalangan.</span>
-            <Link
-              href="/admin"
-              className="text-slate-600 hover:text-slate-400 transition-colors p-0.5 inline-flex items-center opacity-40 hover:opacity-100"
-              title="Admin Panel"
-              aria-label="Admin panel"
-            >
-              <Lock className="size-2.5" />
-            </Link>
-          </div>
+          <FooterCopyright siteName={site.name} />
         </Container>
       </div>
     </footer>

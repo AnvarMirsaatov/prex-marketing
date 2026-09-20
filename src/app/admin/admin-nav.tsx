@@ -15,10 +15,20 @@ import {
   LogOut,
   Menu,
   X,
+  UserCog,
+  KeyRound,
+  Shield,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const NAV_ITEMS = [
+interface CurrentUser {
+  userId: string;
+  username: string;
+  name: string;
+  role: string;
+}
+
+const SUPER_ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/leads", label: "So'rovlar (Leads)", icon: Inbox },
   { href: "/admin/services", label: "Xizmatlar", icon: Briefcase },
@@ -27,15 +37,41 @@ const NAV_ITEMS = [
   { href: "/admin/portfolio", label: "Portfolio", icon: Image },
   { href: "/admin/team", label: "Jamoa", icon: UserCheck },
   { href: "/admin/settings", label: "Sozlamalar", icon: Settings },
+  { href: "/admin/users", label: "Adminlar", icon: UserCog },
+  { href: "/admin/security", label: "Xavfsizlik & Parol", icon: KeyRound },
+];
+
+const ADMIN_NAV = [
+  { href: "/admin/leads", label: "So'rovlar (Leads)", icon: Inbox },
+  { href: "/admin/security", label: "Parolni o'zgartirish", icon: KeyRound },
 ];
 
 export function AdminNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<CurrentUser | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/admin/auth");
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user || null);
+        }
+      } catch (e) {
+        console.error("Auth check failed:", e);
+      }
+    }
+    checkAuth();
+  }, []);
 
   // If on login page, do not render sidebar
   if (pathname === "/admin/login") return null;
+
+  const isSuperAdmin = user?.role === "super_admin";
+  const navItems = isSuperAdmin ? SUPER_ADMIN_NAV : ADMIN_NAV;
 
   async function handleLogout() {
     try {
@@ -71,9 +107,40 @@ export function AdminNav() {
         </button>
       </div>
 
+      {/* User profile capsule */}
+      {user && (
+        <div className="mb-4 px-3 py-2.5 rounded-xl bg-[#0b162b] border border-blue-900/40">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`size-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 border ${
+                isSuperAdmin
+                  ? "bg-purple-600/20 border-purple-500/40 text-purple-200"
+                  : "bg-sky-600/20 border-sky-500/40 text-sky-200"
+              }`}
+            >
+              {user.name ? user.name.charAt(0).toUpperCase() : "A"}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-white truncate leading-tight">{user.name}</p>
+              <div className="flex items-center gap-1 mt-0.5">
+                {isSuperAdmin ? (
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-purple-300">
+                    <Shield className="size-2.5" /> Super Admin
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-sky-300">
+                    Menejer
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation links */}
-      <nav className="flex-1 space-y-1.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
+      <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1">
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
             pathname === item.href ||

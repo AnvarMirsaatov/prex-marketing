@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, type FormEvent, type ChangeEvent } from "react";
+import { useRef, useState, useEffect, useMemo, type FormEvent, type ChangeEvent } from "react";
 import { InputField, SelectField, TextareaField } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/providers/toast-provider";
@@ -34,29 +34,29 @@ export interface ConsultationFormProps {
   variant?: "radio" | "select";
 }
 
-// Format phone number into +998 XX XXX XX XX
-function formatUzbekPhone(value: string): string {
-  if (!value) return "";
+// Format phone number strictly into +998 (__) ___-__-__
+function formatUzbekPhoneMask(value: string): string {
+  if (!value) return "+998 ";
   let digits = value.replace(/\D/g, "");
 
-  // If starts with 998, keep it; if starts with local code (e.g. 90, 20), prepend 998
-  if (!digits.startsWith("998")) {
-    digits = "998" + digits;
+  // If starts with 998, strip it to only format the remaining 9 digits
+  if (digits.startsWith("998")) {
+    digits = digits.slice(3);
   }
-  digits = digits.slice(0, 12);
+  // Max 9 local digits
+  digits = digits.slice(0, 9);
 
-  let formatted = "+998";
-  if (digits.length > 3) {
-    formatted += " " + digits.slice(3, 5);
-  }
-  if (digits.length > 5) {
-    formatted += " " + digits.slice(5, 8);
-  }
-  if (digits.length > 8) {
-    formatted += " " + digits.slice(8, 10);
-  }
-  if (digits.length > 10) {
-    formatted += " " + digits.slice(10, 12);
+  if (digits.length === 0) return "+998 ";
+
+  let formatted = "+998 ";
+  if (digits.length <= 2) {
+    formatted += `(${digits}`;
+  } else if (digits.length <= 5) {
+    formatted += `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  } else if (digits.length <= 7) {
+    formatted += `(${digits.slice(0, 2)}) ${digits.slice(2, 5)}-${digits.slice(5)}`;
+  } else {
+    formatted += `(${digits.slice(0, 2)}) ${digits.slice(2, 5)}-${digits.slice(5, 7)}-${digits.slice(7, 9)}`;
   }
   return formatted;
 }
@@ -83,6 +83,7 @@ export function ConsultationForm({
   const [selectedService, setSelectedService] = useState<string>(
     defaultService || (services && services.length > 0 ? services[0].value : "SMM")
   );
+  const [selectedTariffBadge, setSelectedTariffBadge] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
 
@@ -97,6 +98,27 @@ export function ConsultationForm({
     service: string;
   } | null>(null);
 
+  // Listen to interactive tariff selections from pricing/hero
+  useEffect(() => {
+    function handleSelectPlan(event: Event) {
+      const customEvent = event as CustomEvent<{ service?: string; tariff?: string }>;
+      const { service, tariff } = customEvent.detail || {};
+      if (tariff) {
+        setSelectedTariffBadge(tariff);
+        setSelectedService(tariff);
+      } else if (service) {
+        setSelectedService(service);
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("select-service-plan", handleSelectPlan);
+      return () => {
+        window.removeEventListener("select-service-plan", handleSelectPlan);
+      };
+    }
+  }, []);
+
   // Keyboard accessibility for modal
   useEffect(() => {
     if (!modalOpen) return;
@@ -107,7 +129,7 @@ export function ConsultationForm({
     return () => window.removeEventListener("keydown", onKey);
   }, [modalOpen]);
 
-  // Phone input change handler with auto-masking
+  // Phone input change handler with strict auto-masking: +998 (__) ___-__-__
   function handlePhoneChange(e: ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     if (!raw || raw.trim() === "+" || raw.trim() === "+9" || raw.trim() === "+99" || raw.trim() === "+998") {
@@ -115,7 +137,7 @@ export function ConsultationForm({
       setPhoneError(undefined);
       return;
     }
-    const formatted = formatUzbekPhone(raw);
+    const formatted = formatUzbekPhoneMask(raw);
     setPhone(formatted);
     if (phoneError) setPhoneError(undefined);
   }
@@ -135,9 +157,9 @@ export function ConsultationForm({
       setNameError(undefined);
     }
 
-    // 2. Phone validation (Uzbekistan format: +998 XX XXX XX XX)
+    // 2. Phone validation (Uzbekistan format: +998 (XX) XXX-XX-XX)
     if (!isValidUzbekPhone(phone)) {
-      setPhoneError("O'zbekiston formati: +998 XX XXX XX XX");
+      setPhoneError("To'liq formatda kiriting: +998 (XX) XXX-XX-XX");
       hasError = true;
     } else {
       setPhoneError(undefined);
@@ -205,8 +227,16 @@ export function ConsultationForm({
     { value: "IT xizmatlari", label: "IT xizmatlari (Sayt va dasturlar)" },
   ];
 
-  const effectiveServices = services && services.length > 0 ? services : defaultServices;
-  const isFewOptions = effectiveServices.length <= 4 && (variant === "radio" || !services || services.length <= 3);
+  const effectiveServices = useMemo(() => {
+    const base = services && services.length > 0 ? [...services] : [...defaultServices];
+    if (selectedTariffBadge && !base.some((s) => s.value === selectedTariffBadge)) {
+      return [{ value: selectedTariffBadge, label: selectedTariffBadge }, ...base];
+    }
+    return base;
+  }, [services, selectedTariffBadge]);
+
+  const isFewOptions =
+    effectiveServices.length <= 4 && (variant === "radio" || !services || services.length <= 3);
 
   return (
     <>
@@ -216,6 +246,29 @@ export function ConsultationForm({
         noValidate
         className="space-y-5"
       >
+        {/* Selected Tariff Interactive Badge */}
+        {selectedTariffBadge && (
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-blue-500/15 border border-blue-400/30 text-sky-200 text-xs font-semibold backdrop-blur-md shadow-[0_0_15px_rgba(56,189,248,0.15)] animate-in fade-in duration-300">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-sky-400 shrink-0" />
+              <span>
+                Tanlangan tarif: <strong className="text-white font-bold">{selectedTariffBadge}</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedTariffBadge(null);
+                setSelectedService(defaultServices[0].value);
+              }}
+              className="p-1 rounded-lg hover:bg-blue-500/20 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="Tarifni tozalash"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        )}
+
         {errorMessage && (
           <div className="p-4 rounded-control bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
             <AlertCircle className="size-4 shrink-0" />
@@ -260,7 +313,7 @@ export function ConsultationForm({
             inputMode="tel"
             autoComplete="tel"
             required
-            placeholder="+998 90 123 45 67"
+            placeholder="+998 (90) 123-45-67"
             value={phone}
             error={phoneError}
             onChange={handlePhoneChange}

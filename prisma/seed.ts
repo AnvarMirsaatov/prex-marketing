@@ -32,15 +32,33 @@ async function main() {
     },
   });
 
-  // 2. Admin User
+  // 2. Admin Users (Super Admin + Manager)
   const passwordHash = await bcrypt.hash("prox2026!", 10);
   await prisma.adminUser.upsert({
     where: { username: "admin" },
-    update: {},
+    update: {
+      role: "super_admin",
+      name: "Bosh Administrator (Super Admin)",
+    },
     create: {
       username: "admin",
       passwordHash,
-      name: "Prox Administrator",
+      name: "Bosh Administrator (Super Admin)",
+      role: "super_admin",
+    },
+  });
+
+  const managerPasswordHash = await bcrypt.hash("prox123!", 10);
+  await prisma.adminUser.upsert({
+    where: { username: "manager" },
+    update: {
+      role: "admin",
+      name: "Lid Menejeri",
+    },
+    create: {
+      username: "manager",
+      passwordHash: managerPasswordHash,
+      name: "Lid Menejeri",
       role: "admin",
     },
   });
