@@ -14,15 +14,36 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
   const assigned = searchParams.get("assigned");
+  const followUp = searchParams.get("followUp");
 
   try {
     const where: Prisma.LeadWhereInput = {};
+    const now = new Date();
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
+
     if (status && status !== "all") {
       if (status === "yakunlandi" || status === "yopildi") {
         where.status = { in: ["yakunlandi", "yopildi"] };
+      } else if (status === "qayta_bog'lanish" || status === "qayta_boglanish" || status === "follow_up") {
+        where.status = "qayta_bog'lanish";
       } else {
         where.status = status;
       }
+    }
+
+    if (followUp === "due") {
+      where.followUpStatus = "PENDING";
+      where.followUpDate = { lte: endOfToday };
+    } else if (followUp === "pending") {
+      where.followUpStatus = "PENDING";
     }
 
     if (assigned === "mine") {
@@ -46,13 +67,23 @@ export async function GET(request: Request) {
       },
     });
 
+    const isSuper = (session.role || "").toUpperCase() === "SUPER_ADMIN";
+
     const counts = {
       all: await prisma.lead.count(),
       yangi: await prisma.lead.count({ where: { status: "yangi" } }),
+      qayta_boglanish: await prisma.lead.count({ where: { status: "qayta_bog'lanish" } }),
       korildi: await prisma.lead.count({ where: { status: "ko'rildi" } }),
       yakunlandi: await prisma.lead.count({ where: { status: { in: ["yakunlandi", "yopildi"] } } }),
       mine: await prisma.lead.count({ where: { assignedToId: session.userId } }),
       unassigned: await prisma.lead.count({ where: { assignedToId: null } }),
+      followUpDue: await prisma.lead.count({
+        where: {
+          followUpStatus: "PENDING",
+          followUpDate: { lte: endOfToday },
+          ...(isSuper ? {} : { assignedToId: session.userId }),
+        },
+      }),
     };
 
     return NextResponse.json({ leads, counts, currentUser: session });

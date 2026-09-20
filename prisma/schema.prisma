@@ -122,12 +122,25 @@ model Lead {
   lastActionBy   AdminUser? @relation("LastActionLeads", fields: [lastActionById], references: [id])
   lastActionAt   DateTime?
   notes          String?    // JSON string: [{ id, text, authorId, authorName, authorRole, createdAt }]
+  
+  // Follow-up (Qayta bog'lanish) va eslatmalar tizimi
+  followUpDate            DateTime?
+  followUpNote            String?
+  followUpStatus          String?    // PENDING, COMPLETED, EXPIRED
+  followUpSetById         String?
+  followUpSetByName       String?
+  followUpCompletedAt     DateTime?
+  followUpCompletedById   String?
+  followUpCompletedByName String?
+
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
   @@index([status])
   @@index([assignedToId])
   @@index([createdAt])
+  @@index([followUpDate])
+  @@index([followUpStatus])
 }
 
 // 7. SiteSettings (telefon: +998 20 026 04 18, instagram: @prox_uz, telegram: @manager_prox, hero_matnlari, logotip)

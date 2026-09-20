@@ -16,6 +16,7 @@ import {
   Layers,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FollowUpBell } from "@/components/admin/notifications/follow-up-bell";
 
 interface CurrentUser {
   userId: string;
@@ -226,14 +227,17 @@ export function AdminNav() {
             <span className="font-black text-lg text-white">PROX ADMIN</span>
           )}
         </div>
-        <Link
-          href="/uz"
-          target="_blank"
-          className="text-xs bg-blue-950/80 border border-blue-800/40 px-3 py-1.5 rounded-lg text-blue-200 flex items-center gap-1.5 hover:bg-blue-900/60 transition-colors"
-        >
-          <span>Sayt</span>
-          <ExternalLink className="size-3" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <FollowUpBell />
+          <Link
+            href="/uz"
+            target="_blank"
+            className="text-xs bg-blue-950/80 border border-blue-800/40 px-3 py-1.5 rounded-lg text-blue-200 flex items-center gap-1.5 hover:bg-blue-900/60 transition-colors"
+          >
+            <span>Sayt</span>
+            <ExternalLink className="size-3" />
+          </Link>
+        </div>
       </div>
 
       {/* Mobile & Tablet Drawer Modal with Backdrop */}

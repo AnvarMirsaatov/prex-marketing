@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Phone,
   Trash2,
@@ -14,6 +15,10 @@ import {
   Send,
   Edit3,
   CheckCircle2,
+  CalendarClock,
+  AlertTriangle,
+  Calendar,
+  AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/components/providers/toast-provider";
 
@@ -48,6 +53,15 @@ interface Lead {
   lastActionBy: AdminSummary | null;
   lastActionAt: string | null;
   notes: string | null;
+  // Follow-up maydonlari
+  followUpDate: string | null;
+  followUpNote: string | null;
+  followUpStatus: string | null; // PENDING, COMPLETED, EXPIRED
+  followUpSetById: string | null;
+  followUpSetByName: string | null;
+  followUpCompletedAt: string | null;
+  followUpCompletedById: string | null;
+  followUpCompletedByName: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,35 +69,77 @@ interface Lead {
 interface Counts {
   all: number;
   yangi: number;
+  qayta_boglanish: number;
   korildi: number;
   yakunlandi: number;
   mine: number;
   unassigned: number;
+  followUpDue: number;
 }
 
 export default function AdminLeadsPage() {
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
+  const highlightParam = searchParams.get("highlight");
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [admins, setAdmins] = useState<AdminSummary[]>([]);
   const [currentUser, setCurrentUser] = useState<AdminSummary | null>(null);
   const [counts, setCounts] = useState<Counts>({
     all: 0,
     yangi: 0,
+    qayta_boglanish: 0,
     korildi: 0,
     yakunlandi: 0,
     mine: 0,
     unassigned: 0,
+    followUpDue: 0,
   });
   const [loading, setLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState<string>("all");
   const [activeAssigned, setActiveAssigned] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
 
   // Notes Modal state
   const [notesLead, setNotesLead] = useState<Lead | null>(null);
   const [newNoteText, setNewNoteText] = useState("");
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
   const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
+
+  // Follow-up Schedule Modal state
+  const [followUpLead, setFollowUpLead] = useState<Lead | null>(null);
+  const [followUpDateInput, setFollowUpDateInput] = useState("");
+  const [followUpNoteInput, setFollowUpNoteInput] = useState("");
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
+  const [isSubmittingFollowUp, setIsSubmittingFollowUp] = useState(false);
+
+  // Follow-up Completion Modal state
+  const [completeLead, setCompleteLead] = useState<Lead | null>(null);
+  const [completeResultNote, setCompleteResultNote] = useState("");
+  const [completeNextStatus, setCompleteNextStatus] = useState("ko'rildi");
+  const [isSubmittingComplete, setIsSubmittingComplete] = useState(false);
+
+  // Time states for pure rendering
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [currentDateStr, setCurrentDateStr] = useState<string>("");
+  const [nowIso, setNowIso] = useState<string>("");
+
+  useEffect(() => {
+    const updateTimes = () => {
+      const d = new Date();
+      setCurrentTime(d.getTime());
+      setCurrentDateStr(d.toDateString());
+      setNowIso(
+        new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16)
+      );
+    };
+    updateTimes();
+    const timer = setInterval(updateTimes, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Load list of all admins
   useEffect(() => {
@@ -104,6 +160,29 @@ export default function AdminLeadsPage() {
     loadAdmins();
   }, []);
 
+  // Handle URL highlight
+  useEffect(() => {
+    if (highlightParam) {
+      setActiveHighlightId(highlightParam);
+      // Wait for leads to be loaded/rendered
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`lead-${highlightParam}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300);
+
+      const clearTimer = setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 6000);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(clearTimer);
+      };
+    }
+  }, [highlightParam, leads]);
+
   const fetchLeads = useCallback(
     async (status = activeStatus, assigned = activeAssigned) => {
       setLoading(true);
@@ -116,7 +195,18 @@ export default function AdminLeadsPage() {
         const data = await res.json();
         if (res.ok) {
           setLeads(data.leads || []);
-          setCounts(data.counts || { all: 0, yangi: 0, korildi: 0, yakunlandi: 0, mine: 0, unassigned: 0 });
+          setCounts(
+            data.counts || {
+              all: 0,
+              yangi: 0,
+              qayta_boglanish: 0,
+              korildi: 0,
+              yakunlandi: 0,
+              mine: 0,
+              unassigned: 0,
+              followUpDue: 0,
+            }
+          );
           if (data.currentUser) {
             setCurrentUser(data.currentUser);
           }
@@ -145,6 +235,7 @@ export default function AdminLeadsPage() {
         (lead.phone || "").toLowerCase().includes(query) ||
         (lead.serviceType || "").toLowerCase().includes(query) ||
         (lead.comment && lead.comment.toLowerCase().includes(query)) ||
+        (lead.followUpNote && lead.followUpNote.toLowerCase().includes(query)) ||
         (lead.assignedTo && (lead.assignedTo.name || "").toLowerCase().includes(query))
     );
   }, [leads, searchQuery]);
@@ -161,9 +252,7 @@ export default function AdminLeadsPage() {
       const data = await res.json();
       if (res.ok) {
         showToast("Status muvaffaqiyatli o'zgartirildi", "success");
-        setLeads((prev) =>
-          prev.map((l) => (l.id === id ? data.lead : l))
-        );
+        setLeads((prev) => prev.map((l) => (l.id === id ? data.lead : l)));
         fetchLeads(activeStatus, activeAssigned);
       } else {
         showToast(data.error || "Statusni o'zgartirib bo'lmadi", "error");
@@ -190,9 +279,7 @@ export default function AdminLeadsPage() {
           assignedToId ? "Lid adminga muvaffaqiyatli biriktirildi" : "Biriktiruv bekor qilindi",
           "success"
         );
-        setLeads((prev) =>
-          prev.map((l) => (l.id === id ? data.lead : l))
-        );
+        setLeads((prev) => prev.map((l) => (l.id === id ? data.lead : l)));
         fetchLeads(activeStatus, activeAssigned);
       } else {
         showToast(data.error || "Biriktirib bo'lmadi", "error");
@@ -220,9 +307,7 @@ export default function AdminLeadsPage() {
         showToast("Izoh saqlandi", "success");
         setNewNoteText("");
         setNotesLead(data.lead);
-        setLeads((prev) =>
-          prev.map((l) => (l.id === data.lead.id ? data.lead : l))
-        );
+        setLeads((prev) => prev.map((l) => (l.id === data.lead.id ? data.lead : l)));
       } else {
         showToast(data.error || "Izohni saqlab bo'lmadi", "error");
       }
@@ -230,6 +315,148 @@ export default function AdminLeadsPage() {
       showToast("Server xatosi", "error");
     } finally {
       setIsSubmittingNote(false);
+    }
+  }
+
+  // Follow-up open modal helper
+  function openFollowUpModal(lead: Lead) {
+    setFollowUpLead(lead);
+    setFollowUpError(null);
+    if (lead.followUpDate) {
+      const d = new Date(lead.followUpDate);
+      const localIso = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      setFollowUpDateInput(localIso);
+    } else {
+      // Default: ertaga soat 10:00 da
+      const tmrw = new Date();
+      tmrw.setDate(tmrw.getDate() + 1);
+      tmrw.setHours(10, 0, 0, 0);
+      const localIso = new Date(tmrw.getTime() - tmrw.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      setFollowUpDateInput(localIso);
+    }
+    setFollowUpNoteInput(lead.followUpNote || "");
+  }
+
+  function setQuickHours(hours: number) {
+    const target = new Date(Date.now() + hours * 60 * 60 * 1000);
+    const localIso = new Date(target.getTime() - target.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    setFollowUpDateInput(localIso);
+  }
+
+  function setTomorrow10() {
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    target.setHours(10, 0, 0, 0);
+    const localIso = new Date(target.getTime() - target.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    setFollowUpDateInput(localIso);
+  }
+
+  function setIn2Days11() {
+    const target = new Date();
+    target.setDate(target.getDate() + 2);
+    target.setHours(11, 0, 0, 0);
+    const localIso = new Date(target.getTime() - target.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    setFollowUpDateInput(localIso);
+  }
+
+  async function handleSaveFollowUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!followUpLead || isSubmittingFollowUp) return;
+
+    setFollowUpError(null);
+
+    // 1. Sana tekshiruvi
+    if (!followUpDateInput) {
+      setFollowUpError("Iltimos, qayta bog'lanish sanasi va vaqtini tanlang!");
+      return;
+    }
+
+    const selectedTime = new Date(followUpDateInput).getTime();
+    if (selectedTime < Date.now() - 5 * 60 * 1000) {
+      setFollowUpError("O'tgan sana va vaqtni tanlab bo'lmaydi. Kelgusi vaqtni tanlang!");
+      return;
+    }
+
+    // 2. Suhbat mazmuni va reja tekshiruvi (MAJBURIY!)
+    if (!followUpNoteInput || followUpNoteInput.trim().length === 0) {
+      setFollowUpError("Iltimos, suhbat mazmuni va qayta qo'ng'iroq rejasini yozing!");
+      return;
+    }
+
+    setIsSubmittingFollowUp(true);
+    try {
+      const res = await fetch("/api/admin/leads/follow-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: followUpLead.id,
+          followUpDate: followUpDateInput,
+          followUpNote: followUpNoteInput.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Qayta bog'lanish eslatmasi muvaffaqiyatli saqlandi!", "success");
+        setFollowUpLead(null);
+        window.dispatchEvent(new Event("prox-followup-updated"));
+        fetchLeads(activeStatus, activeAssigned);
+      } else {
+        setFollowUpError(data.error || "Eslatmani saqlab bo'lmadi");
+        showToast(data.error || "Xatolik yuz berdi", "error");
+      }
+    } catch {
+      setFollowUpError("Server bilan bog'lanishda xatolik yuz berdi");
+      showToast("Server xatosi", "error");
+    } finally {
+      setIsSubmittingFollowUp(false);
+    }
+  }
+
+  // Open Complete Modal helper
+  function openCompleteModal(lead: Lead) {
+    setCompleteLead(lead);
+    setCompleteResultNote("");
+    setCompleteNextStatus("ko'rildi");
+  }
+
+  async function handleCompleteFollowUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!completeLead || isSubmittingComplete) return;
+
+    setIsSubmittingComplete(true);
+    try {
+      const res = await fetch("/api/admin/leads/follow-up", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: completeLead.id,
+          resultNote: completeResultNote.trim(),
+          nextStatus: completeNextStatus,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Qayta bog'lanish bajarildi deb belgilandi!", "success");
+        setCompleteLead(null);
+        window.dispatchEvent(new Event("prox-followup-updated"));
+        fetchLeads(activeStatus, activeAssigned);
+      } else {
+        showToast(data.error || "Yakunlab bo'lmadi", "error");
+      }
+    } catch {
+      showToast("Server xatosi", "error");
+    } finally {
+      setIsSubmittingComplete(false);
     }
   }
 
@@ -245,6 +472,7 @@ export default function AdminLeadsPage() {
       const res = await fetch(`/api/admin/leads?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         showToast("So'rov o'chirildi", "info");
+        window.dispatchEvent(new Event("prox-followup-updated"));
         fetchLeads(activeStatus, activeAssigned);
       } else {
         const err = await res.json().catch(() => ({}));
@@ -270,7 +498,7 @@ export default function AdminLeadsPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -281,7 +509,7 @@ export default function AdminLeadsPage() {
             </span>
           </h1>
           <p className="text-sm text-slate-400">
-            Kelib tushgan arizalar, mas'ul adminlar biriktiruvi va ichki ish tarixi
+            Kelib tushgan arizalar, qayta bog'lanish eslatmalari va mas'ul adminlar biriktiruvi
           </p>
         </div>
         <button
@@ -302,6 +530,18 @@ export default function AdminLeadsPage() {
             {[
               { key: "all", label: "Barcha arizalar", count: counts.all },
               { key: "yangi", label: "Yangi", count: counts.yangi, badgeClass: "bg-amber-500/20 text-amber-300" },
+              {
+                key: "qayta_bog'lanish",
+                label: "Qayta bog'lanish",
+                count: counts.qayta_boglanish,
+                badgeClass: "bg-purple-500/20 text-purple-300",
+                extraBadge:
+                  counts.followUpDue > 0 ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-rose-500 text-white animate-pulse">
+                      {counts.followUpDue} bugun
+                    </span>
+                  ) : null,
+              },
               { key: "ko'rildi", label: "Ko'rildi", count: counts.korildi, badgeClass: "bg-blue-500/20 text-blue-300" },
               { key: "yakunlandi", label: "Yakunlandi", count: counts.yakunlandi, badgeClass: "bg-emerald-500/20 text-emerald-300" },
             ].map((tab) => {
@@ -324,6 +564,7 @@ export default function AdminLeadsPage() {
                   >
                     {tab.count}
                   </span>
+                  {tab.extraBadge}
                 </button>
               );
             })}
@@ -366,7 +607,7 @@ export default function AdminLeadsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Mijoz ismi, telefon raqami, xizmat turi yoki mas'ul admin bo'yicha qidirish..."
+            placeholder="Mijoz ismi, telefon raqami, suhbat mazmuni yoki mas'ul admin bo'yicha qidirish..."
             className="w-full pl-9.5 pr-8 py-2.5 bg-[#070e1c] border border-blue-900/30 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all"
           />
           {searchQuery && (
@@ -403,29 +644,82 @@ export default function AdminLeadsPage() {
               const currentAdminId = currentUser?.userId || currentUser?.id;
               const isAssignedToMe = currentAdminId ? lead.assignedToId === currentAdminId : false;
               const isUpdating = updatingLeadId === lead.id;
+              const isHighlighted = activeHighlightId === lead.id;
+
+              // Follow-up status calculations
+              const hasPendingFollowUp =
+                lead.followUpStatus === "PENDING" && lead.followUpDate !== null;
+              const isFollowUpOverdue =
+                hasPendingFollowUp && currentTime > 0
+                  ? new Date(lead.followUpDate!).getTime() < currentTime
+                  : false;
+              const isFollowUpToday =
+                hasPendingFollowUp && currentDateStr
+                  ? new Date(lead.followUpDate!).toDateString() === currentDateStr
+                  : false;
+
+              // Highlight border styling
+              let cardHighlightClass = "hover:bg-blue-950/15";
+              if (isHighlighted) {
+                cardHighlightClass =
+                  "bg-blue-950/40 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070e1c] animate-pulse";
+              } else if (hasPendingFollowUp && isFollowUpOverdue) {
+                cardHighlightClass =
+                  "bg-rose-950/15 border-l-4 border-l-rose-500 hover:bg-rose-950/25";
+              } else if (hasPendingFollowUp && isFollowUpToday) {
+                cardHighlightClass =
+                  "bg-amber-950/15 border-l-4 border-l-amber-500 hover:bg-amber-950/25";
+              } else if (hasPendingFollowUp) {
+                cardHighlightClass =
+                  "bg-sky-950/10 border-l-4 border-l-sky-500 hover:bg-sky-950/20";
+              }
 
               return (
                 <div
                   key={lead.id}
-                  className="p-5 flex flex-col xl:flex-row xl:items-center justify-between gap-5 hover:bg-blue-950/15 transition-colors"
+                  id={`lead-${lead.id}`}
+                  className={`p-5 flex flex-col xl:flex-row xl:items-start justify-between gap-5 transition-all duration-300 ${cardHighlightClass}`}
                 >
                   {/* Info Column */}
-                  <div className="space-y-2.5 flex-1 min-w-0">
+                  <div className="space-y-3 flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span className="font-bold text-white text-base tracking-tight">
                         {lead.name || "Noma'lum mijoz"}
                       </span>
+
+                      {/* Main Lead Status Badge */}
                       <span
                         className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                           lead.status === "yangi"
                             ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                            : lead.status === "ko'rildi"
-                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : lead.status === "qayta_bog'lanish"
+                              ? "bg-purple-500/25 text-purple-300 border border-purple-500/40"
+                              : lead.status === "ko'rildi"
+                                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                                : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                         }`}
                       >
-                        {lead.status === "yopildi" ? "yakunlandi" : lead.status || "yangi"}
+                        {lead.status === "yopildi"
+                          ? "yakunlandi"
+                          : lead.status === "qayta_bog'lanish"
+                            ? "qayta bog'lanish"
+                            : lead.status || "yangi"}
                       </span>
+
+                      {/* Urgent Follow-Up Alert Badge */}
+                      {hasPendingFollowUp && isFollowUpOverdue && (
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500 text-white flex items-center gap-1 shadow-md shadow-rose-900/50">
+                          <AlertTriangle className="size-3" />
+                          <span>Muddati o'tgan qayta bog'lanish!</span>
+                        </span>
+                      )}
+                      {hasPendingFollowUp && !isFollowUpOverdue && isFollowUpToday && (
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 flex items-center gap-1 shadow-md shadow-amber-900/40">
+                          <CalendarClock className="size-3 animate-pulse" />
+                          <span>Bugun qo'ng'iroq qilish kerak!</span>
+                        </span>
+                      )}
+
                       <span className="text-xs bg-blue-950/70 border border-blue-800/40 text-sky-300 px-2.5 py-0.5 rounded-md font-medium">
                         {lead.serviceType || "Umumiy"}
                       </span>
@@ -441,6 +735,7 @@ export default function AdminLeadsPage() {
                       </a>
                       <span className="flex items-center gap-1 text-slate-400">
                         <Clock className="size-3.5 text-slate-500" />
+                        Kelgan:{" "}
                         {new Date(lead.createdAt).toLocaleString("uz-UZ", {
                           year: "numeric",
                           month: "short",
@@ -452,10 +747,10 @@ export default function AdminLeadsPage() {
                     </div>
 
                     {/* Mas'ul admin & Oxirgi tahrir info bar */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1 text-xs">
+                    <div className="flex flex-wrap items-center gap-3 pt-0.5 text-xs">
                       {/* Mas'ul Admin Dropdown / Button */}
                       <div className="flex items-center gap-1.5 bg-[#050b14] px-3 py-1.5 rounded-xl border border-blue-900/30">
-                        <span className="text-slate-400 font-medium text-[11px]">Mas'ul admin:</span>
+                        <span className="text-slate-400 font-medium text-[11px]">Mas'ul:</span>
                         {isSuperAdmin ? (
                           <select
                             disabled={isUpdating}
@@ -517,13 +812,13 @@ export default function AdminLeadsPage() {
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-[#050b14]/60 px-3 py-1.5 rounded-xl border border-blue-900/20">
                           <Edit3 className="size-3 text-sky-400" />
                           <span>
-                            Oxirgi tahrir: <strong className="text-slate-200">{lead.lastActionBy.name || "Admin"}</strong> tomonidan{" "}
+                            Oxirgi tahrir: <strong className="text-slate-200">{lead.lastActionBy.name || "Admin"}</strong> (
                             {new Date(lead.lastActionAt || lead.updatedAt).toLocaleString("uz-UZ", {
                               month: "short",
                               day: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
-                            })}
+                            })})
                           </span>
                         </div>
                       )}
@@ -531,33 +826,140 @@ export default function AdminLeadsPage() {
 
                     {/* Website comment */}
                     {lead.comment && (
-                      <p className="text-xs text-slate-300 bg-[#050b14] p-2.5 rounded-xl border border-blue-900/20 mt-1 max-w-2xl break-words">
+                      <p className="text-xs text-slate-300 bg-[#050b14] p-2.5 rounded-xl border border-blue-900/20 max-w-2xl break-words">
                         <span className="text-slate-500 font-semibold mr-1.5">Mijoz arizasi:</span>
                         {lead.comment}
                       </p>
                     )}
+
+                    {/* Active Follow-Up Card Box */}
+                    {hasPendingFollowUp && (
+                      <div
+                        className={`p-3 rounded-xl border space-y-2 mt-2 max-w-2xl ${
+                          isFollowUpOverdue
+                            ? "bg-rose-950/20 border-rose-500/40"
+                            : isFollowUpToday
+                              ? "bg-amber-950/20 border-amber-500/40"
+                              : "bg-[#060c18] border-blue-900/40"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <CalendarClock
+                              className={`size-4 ${
+                                isFollowUpOverdue
+                                  ? "text-rose-400"
+                                  : isFollowUpToday
+                                    ? "text-amber-400 animate-pulse"
+                                    : "text-sky-400"
+                              }`}
+                            />
+                            <span className="font-bold text-white">
+                              Qayta bog'lanish vaqti:{" "}
+                              <span
+                                className={`underline ${
+                                  isFollowUpOverdue
+                                    ? "text-rose-300 font-black"
+                                    : isFollowUpToday
+                                      ? "text-amber-300 font-black"
+                                      : "text-sky-300"
+                                }`}
+                              >
+                                {new Date(lead.followUpDate!).toLocaleString("uz-UZ", {
+                                  weekday: "short",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </span>
+                          </div>
+
+                          <span className="text-[10px] text-slate-400">
+                            Eslatmani o'rnatdi:{" "}
+                            <strong className="text-slate-200">
+                              {lead.followUpSetByName || "Admin"}
+                            </strong>
+                          </span>
+                        </div>
+
+                        {/* Suhbat mazmuni va qayta qo'ng'iroq rejasi */}
+                        <div className="bg-[#050b14] p-2.5 rounded-lg border border-blue-900/30 text-xs">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1">
+                            <span>Suhbat mazmuni va qo'ng'iroq rejasi:</span>
+                          </p>
+                          <p className="text-slate-200 whitespace-pre-wrap leading-relaxed">
+                            {lead.followUpNote}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Completed Follow-Up Tag if completed */}
+                    {lead.followUpStatus === "COMPLETED" && lead.followUpCompletedAt && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-950/40 border border-emerald-500/30 rounded-lg text-[11px] text-emerald-300 font-medium">
+                        <CheckCircle2 className="size-3 text-emerald-400" />
+                        <span>
+                          Qayta bog'lanish bajarildi ({new Date(lead.followUpCompletedAt).toLocaleDateString("uz-UZ", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })})
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions Column */}
-                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  <div className="flex flex-wrap xl:flex-col items-stretch gap-2.5 shrink-0 min-w-[200px]">
+                    {/* Follow-up Quick Action Button */}
+                    {hasPendingFollowUp ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openCompleteModal(lead)}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-700/20 text-xs font-bold transition-all cursor-pointer"
+                        >
+                          <CheckCircle2 className="size-4" />
+                          <span>Bajarildi</span>
+                        </button>
+                        <button
+                          onClick={() => openFollowUpModal(lead)}
+                          title="Vaqt yoki rejani o'zgartirish"
+                          className="p-2 min-h-[40px] min-w-[40px] rounded-xl bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/40 text-amber-300 flex items-center justify-center cursor-pointer transition-colors"
+                        >
+                          <CalendarClock className="size-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => openFollowUpModal(lead)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-bold text-amber-300 transition-colors cursor-pointer"
+                      >
+                        <CalendarClock className="size-3.5 text-amber-400" />
+                        <span>Qayta bog'lanish</span>
+                      </button>
+                    )}
+
                     {/* Notes Trigger Button */}
                     <button
                       onClick={() => {
                         setNotesLead(lead);
                         setNewNoteText("");
                       }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-blue-950/50 hover:bg-blue-900/50 border border-blue-800/40 text-xs font-semibold text-sky-300 transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[40px] rounded-xl bg-blue-950/50 hover:bg-blue-900/50 border border-blue-800/40 text-xs font-semibold text-sky-300 transition-colors cursor-pointer"
                     >
                       <MessageSquare className="size-3.5" />
                       <span>Ichki izohlar ({notesList.length})</span>
                     </button>
 
                     {/* Status Pill Switcher */}
-                    <div className="flex items-center gap-1 bg-[#050b14] p-1 rounded-xl border border-blue-900/30">
+                    <div className="flex items-center justify-between gap-1 bg-[#050b14] p-1 rounded-xl border border-blue-900/30">
                       <button
                         disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "yangi")}
-                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
+                        className={`flex-1 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 text-center ${
                           lead.status === "yangi"
                             ? "bg-amber-500 text-slate-950 shadow font-bold"
                             : "text-slate-400 hover:text-white"
@@ -568,7 +970,7 @@ export default function AdminLeadsPage() {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "ko'rildi")}
-                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
+                        className={`flex-1 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 text-center ${
                           lead.status === "ko'rildi"
                             ? "bg-blue-500 text-white shadow font-bold"
                             : "text-slate-400 hover:text-white"
@@ -579,13 +981,13 @@ export default function AdminLeadsPage() {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleStatusChange(lead.id, "yakunlandi")}
-                        className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
+                        className={`flex-1 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 text-center ${
                           lead.status === "yakunlandi" || lead.status === "yopildi"
                             ? "bg-emerald-500 text-slate-950 shadow font-bold"
                             : "text-slate-400 hover:text-white"
                         }`}
                       >
-                        Yakunlandi
+                        Yopildi
                       </button>
                     </div>
 
@@ -594,10 +996,11 @@ export default function AdminLeadsPage() {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleDelete(lead.id)}
-                        className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="py-1.5 min-h-[36px] flex items-center justify-center gap-1.5 text-xs text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed border border-rose-900/20"
                         title="O'chirish (Super Admin)"
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="size-3.5" />
+                        <span>O'chirish</span>
                       </button>
                     )}
                   </div>
@@ -607,6 +1010,247 @@ export default function AdminLeadsPage() {
           </div>
         )}
       </div>
+
+      {/* MODAL 1: Qayta bog'lanish (Follow-up) belgilash modali */}
+      {followUpLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#091224] border border-blue-900/50 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-4 bg-[#050b17] border-b border-blue-900/30 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300">
+                  <CalendarClock className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Qayta bog'lanish belgilash
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Mijoz: <span className="text-white font-semibold">{followUpLead.name || "Noma'lum"}</span> ({followUpLead.phone || "—"})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setFollowUpLead(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer hover:bg-blue-950/40"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            {/* Modal Body Form */}
+            <form onSubmit={handleSaveFollowUp} className="p-5 overflow-y-auto space-y-4">
+              {/* Error banner */}
+              {followUpError && (
+                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-xs text-rose-300 flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle className="size-4 shrink-0 text-rose-400 mt-0.5" />
+                  <span className="font-semibold">{followUpError}</span>
+                </div>
+              )}
+
+              {/* Date & Time Picker */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Calendar className="size-3.5 text-sky-400" />
+                  <span>Qayta bog'lanish sanasi va vaqti:</span>
+                  <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  min={nowIso}
+                  value={followUpDateInput}
+                  onChange={(e) => setFollowUpDateInput(e.target.value)}
+                  required
+                  className="w-full p-2.5 bg-[#050b14] border border-blue-900/40 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                />
+
+                {/* Quick Date Shortcuts */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[11px] text-slate-500 mr-1">Tezkor tanlash:</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuickHours(2)}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-900/60 border border-blue-800/40 text-sky-300 font-medium transition-colors cursor-pointer"
+                  >
+                    +2 soatdan keyin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={setTomorrow10}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-900/60 border border-blue-800/40 text-amber-300 font-medium transition-colors cursor-pointer"
+                  >
+                    Ertaga soat 10:00 da
+                  </button>
+                  <button
+                    type="button"
+                    onClick={setIn2Days11}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-900/60 border border-blue-800/40 text-slate-300 font-medium transition-colors cursor-pointer"
+                  >
+                    2 kundan keyin 11:00 da
+                  </button>
+                </div>
+              </div>
+
+              {/* Suhbat mazmuni va qayta qo'ng'iroq rejasi (MAJBURIY TEXTAREA) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <MessageSquare className="size-3.5 text-amber-400" />
+                    <span>Suhbat mazmuni va qayta qo'ng'iroq rejasi:</span>
+                    <span className="text-rose-400">*</span>
+                  </label>
+                  <span className="text-[10px] text-amber-400 font-semibold uppercase tracking-wider">
+                    Majburiy maydon
+                  </span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={followUpNoteInput}
+                  onChange={(e) => {
+                    setFollowUpNoteInput(e.target.value);
+                    if (followUpError) setFollowUpError(null);
+                  }}
+                  placeholder="Mijoz bilan nima haqida gaplashildi? Belgilangan sanada qo'ng'iroq qilinganda qaysi masalalar muhokama qilinishi kerak? (Masalan: IT xizmatlari bo'yicha smetani ko'rib chiqdi, narxni ma'qulladi, qayta qo'ng'iroqda shartnoma shartlarini kelishamiz)"
+                  className="w-full p-3 bg-[#050b14] border border-blue-900/40 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 resize-none transition-all leading-relaxed"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Ushbu ma'lumot eslatma kelganda va boshqa adminlar mijoz bilan gaplashganda ko'rinadi.
+                </p>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-3 border-t border-blue-900/30 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFollowUpLead(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-blue-950/40 transition-colors cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingFollowUp}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-amber-600/30 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <CalendarClock className="size-4" />
+                  <span>
+                    {isSubmittingFollowUp ? "Saqlanmoqda..." : "Eslatmani saqlash"}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Qayta bog'lanishni "Bajarildi" deb belgilash modali */}
+      {completeLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#091224] border border-blue-900/50 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-4 bg-[#050b17] border-b border-blue-900/30 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300">
+                  <CheckCircle2 className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Qayta bog'lanishni yakunlash
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Mijoz: <span className="text-white font-semibold">{completeLead.name}</span> ({completeLead.phone})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCompleteLead(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer hover:bg-blue-950/40"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCompleteFollowUp} className="p-5 space-y-4">
+              {/* Original Plan Preview */}
+              {completeLead.followUpNote && (
+                <div className="p-3 rounded-xl bg-[#050b14] border border-blue-900/30 text-xs space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Rejalashtirilgan masala:
+                  </p>
+                  <p className="text-slate-300 italic leading-relaxed">
+                    &ldquo;{completeLead.followUpNote}&rdquo;
+                  </p>
+                </div>
+              )}
+
+              {/* Result Note */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <MessageSquare className="size-3.5 text-emerald-400" />
+                  <span>Suhbat natijasi va erishilgan kelishuv (Izoh):</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={completeResultNote}
+                  onChange={(e) => setCompleteResultNote(e.target.value)}
+                  placeholder="Mijoz bilan nima kelishildi? (Masalan: Shartnoma imzolandi, to'lov kutilmoqda / O'ylab ko'radigan bo'ldi / Boshqa xizmat tanladi)"
+                  className="w-full p-3 bg-[#050b14] border border-blue-900/40 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 resize-none transition-all leading-relaxed"
+                />
+              </div>
+
+              {/* Next Status Selector */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">
+                  Lidning yangi statusini belgilang:
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCompleteNextStatus("ko'rildi")}
+                    className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
+                      completeNextStatus === "ko'rildi"
+                        ? "bg-blue-600/30 border-blue-500 text-sky-200 font-bold"
+                        : "bg-[#050b14] border-blue-900/40 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Ko'rildi (Jarayonda)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCompleteNextStatus("yakunlandi")}
+                    className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
+                      completeNextStatus === "yakunlandi"
+                        ? "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold"
+                        : "bg-[#050b14] border-blue-900/40 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Yakunlandi (Yopildi)
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-blue-900/30 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCompleteLead(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-blue-950/40 transition-colors cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingComplete}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-700/30 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <CheckCircle2 className="size-4" />
+                  <span>
+                    {isSubmittingComplete ? "Saqlanmoqda..." : "Bajarildi deb saqlash"}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Internal Notes & History Modal */}
       {notesLead && (
