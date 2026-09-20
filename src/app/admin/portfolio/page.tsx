@@ -135,7 +135,7 @@ export default function AdminPortfolioPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20 cursor-pointer w-fit"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer w-fit"
         >
           <Plus className="size-4" />
           <span>Yangi keys qo'shish</span>
@@ -143,8 +143,8 @@ export default function AdminPortfolioPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-3">
-          <div className="size-12 rounded-2xl bg-slate-800 text-purple-400 flex items-center justify-center mx-auto">
+        <div className="p-12 rounded-2xl bg-[#0a1326] border border-blue-900/20 text-center space-y-3">
+          <div className="size-12 rounded-2xl bg-blue-950/80 text-sky-400 border border-blue-800/40 flex items-center justify-center mx-auto">
             <ImageIcon className="size-6" />
           </div>
           <h3 className="font-bold text-white text-base">Portfolio hozircha bo'sh holatda</h3>
@@ -154,7 +154,7 @@ export default function AdminPortfolioPage() {
           </p>
           <button
             onClick={openCreate}
-            className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl"
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-950/80 hover:bg-blue-900/60 border border-blue-800/40 text-sky-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
           >
             <Plus className="size-3.5" />
             <span>Birinchi keysni qo'shish</span>
@@ -165,17 +165,17 @@ export default function AdminPortfolioPage() {
           {items.map((it) => (
             <div
               key={it.id}
-              className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-sm flex flex-col justify-between"
+              className="rounded-2xl bg-[#0a1326] border border-blue-900/20 overflow-hidden shadow-sm flex flex-col justify-between hover:border-blue-500/30 transition-all"
             >
               <div className="p-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-950/80 text-sky-300 border border-blue-800/40">
                   {it.category}
                 </span>
                 <h3 className="font-bold text-white text-base mt-2">{it.titleUz}</h3>
                 <p className="text-xs text-slate-400 mt-1 line-clamp-2">{it.descUz}</p>
               </div>
 
-              <div className="p-4 bg-slate-950/60 border-t border-slate-800 flex items-center justify-between">
+              <div className="p-4 bg-[#050b14] border-t border-blue-900/20 flex items-center justify-between">
                 <span className="text-xs text-slate-500">{it.clientName || "Mijoz ko'rsatilmagan"}</span>
                 <div className="flex items-center gap-1">
                   <button
@@ -311,7 +311,7 @@ export default function AdminPortfolioPage() {
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                    className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
                   />
                   <input
                     type="text"
@@ -319,11 +319,11 @@ export default function AdminPortfolioPage() {
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="/portfolio/sample.jpg yoki https://..."
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs font-mono"
+                    className="w-full px-3 py-2 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-xs font-mono"
                   />
                 </div>
                 {imageUrl && (
-                  <div className="mt-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center gap-2">
+                  <div className="mt-2 p-2 bg-[#050b14] rounded-xl border border-blue-900/30 flex items-center gap-2">
                     <span className="text-[10px] text-slate-500">Preview:</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imageUrl} alt="Preview" className="h-10 w-16 object-cover rounded-lg" />
@@ -331,17 +331,17 @@ export default function AdminPortfolioPage() {
                 )}
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-900/20">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm"
+                  className="px-4 py-2 bg-blue-950/60 hover:bg-blue-900/50 border border-blue-800/40 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold cursor-pointer"
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
                 >
                   Saqlash
                 </button>

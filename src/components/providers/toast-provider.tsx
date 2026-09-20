@@ -41,14 +41,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-xl shadow-lg border text-sm font-medium transition-all transform translate-y-0 ${
+            className={`pointer-events-auto flex items-center justify-between gap-3 p-4 rounded-xl shadow-2xl border text-sm font-medium transition-all backdrop-blur-md ${
               t.type === "success"
-                ? "bg-emerald-900/95 text-emerald-100 border-emerald-700/50 shadow-emerald-950/40"
+                ? "bg-[#0a1829]/95 text-emerald-300 border-emerald-500/30 shadow-emerald-950/50"
                 : t.type === "error"
-                  ? "bg-rose-900/95 text-rose-100 border-rose-700/50 shadow-rose-950/40"
+                  ? "bg-[#1f0d16]/95 text-rose-300 border-rose-500/30 shadow-rose-950/50"
                   : t.type === "warning"
-                    ? "bg-amber-900/95 text-amber-100 border-amber-700/50 shadow-amber-950/40"
-                    : "bg-slate-900/95 text-slate-100 border-slate-700/50 shadow-slate-950/40"
+                    ? "bg-[#221606]/95 text-amber-300 border-amber-500/30 shadow-amber-950/50"
+                    : "bg-[#0a1326]/95 text-sky-200 border-blue-500/30 shadow-blue-950/50"
             }`}
           >
             <span>{t.message}</span>

@@ -140,7 +140,7 @@ export default function AdminServicesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20 cursor-pointer w-fit"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer w-fit"
         >
           <Plus className="size-4" />
           <span>Yangi xizmat qo'shish</span>
@@ -152,23 +152,23 @@ export default function AdminServicesPage() {
         {services.map((s) => (
           <div
             key={s.id}
-            className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between shadow-sm"
+            className="p-6 rounded-2xl bg-[#0a1326] border border-blue-900/20 flex flex-col justify-between shadow-sm hover:border-blue-500/30 transition-all"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-950/80 text-sky-400 border border-blue-800/40">
                   {s.category}
                 </span>
                 <span className="text-xs font-mono text-slate-500">/{s.slug}</span>
               </div>
 
               <h3 className="text-lg font-bold text-white mb-1">{s.titleUz}</h3>
-              <p className="text-xs text-purple-400 mb-3 font-medium">{s.titleRu}</p>
+              <p className="text-xs text-sky-400/80 mb-3 font-medium">{s.titleRu}</p>
 
               <p className="text-xs text-slate-300 line-clamp-3 mb-4">{s.descUz}</p>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-4 border-t border-blue-900/20">
               <span
                 className={`text-xs font-semibold ${s.isActive ? "text-emerald-400" : "text-slate-500"}`}
               >
@@ -304,23 +304,23 @@ export default function AdminServicesPage() {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="size-4 rounded accent-purple-600"
+                    className="size-4 rounded accent-blue-600"
                   />
                   <span>Saytda faol ko'rsatilsin</span>
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-900/20">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
+                  className="px-4 py-2.5 bg-blue-950/60 hover:bg-blue-900/50 border border-blue-800/40 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-purple-600/20 cursor-pointer"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
                 >
                   Saqlash
                 </button>

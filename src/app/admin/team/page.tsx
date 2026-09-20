@@ -151,7 +151,7 @@ export default function AdminTeamPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20 cursor-pointer w-fit"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer w-fit"
         >
           <Plus className="size-4" />
           <span>A'zo qo'shish</span>
@@ -160,12 +160,12 @@ export default function AdminTeamPage() {
 
       {loading && team.length === 0 ? (
         <div className="p-12 text-center text-slate-500">
-          <RefreshCw className="size-6 animate-spin mx-auto mb-2 text-purple-400" />
+          <RefreshCw className="size-6 animate-spin mx-auto mb-2 text-sky-400" />
           <p className="text-sm">Yuklanmoqda...</p>
         </div>
       ) : team.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-3">
-          <div className="size-12 rounded-2xl bg-slate-800 text-purple-400 flex items-center justify-center mx-auto">
+        <div className="p-12 rounded-2xl bg-[#0a1326] border border-blue-900/20 text-center space-y-3">
+          <div className="size-12 rounded-2xl bg-blue-950/80 text-sky-400 border border-blue-800/40 flex items-center justify-center mx-auto">
             <UserCheck className="size-6" />
           </div>
           <h3 className="font-bold text-white text-base">Jamoa a'zolari moduli tayyor</h3>
@@ -174,7 +174,7 @@ export default function AdminTeamPage() {
           </p>
           <button
             onClick={openCreate}
-            className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer"
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-950/80 hover:bg-blue-900/60 border border-blue-800/40 text-sky-200 text-xs font-semibold rounded-xl cursor-pointer"
           >
             <Plus className="size-3.5" />
             <span>Birinchi xodimni qo'shish</span>
@@ -185,7 +185,7 @@ export default function AdminTeamPage() {
           {team.map((m) => (
             <div
               key={m.id}
-              className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between gap-4"
+              className="p-5 rounded-2xl bg-[#0a1326] border border-blue-900/20 flex flex-col justify-between gap-4 hover:border-blue-500/30 transition-all shadow-sm"
             >
               <div className="flex items-start gap-3.5">
                 {m.imageUrl ? (
@@ -193,10 +193,10 @@ export default function AdminTeamPage() {
                   <img
                     src={m.imageUrl}
                     alt={m.name}
-                    className="size-12 rounded-xl object-cover border border-slate-700 shrink-0"
+                    className="size-12 rounded-xl object-cover border border-blue-800/40 shrink-0"
                   />
                 ) : (
-                  <div className="size-12 rounded-xl bg-purple-500/20 text-purple-300 font-black text-sm flex items-center justify-center shrink-0 border border-purple-500/30">
+                  <div className="size-12 rounded-xl bg-blue-950/80 text-sky-300 font-black text-sm flex items-center justify-center shrink-0 border border-blue-800/40">
                     {m.name.slice(0, 2).toUpperCase()}
                   </div>
                 )}
@@ -207,13 +207,13 @@ export default function AdminTeamPage() {
                       className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                         m.isActive
                           ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                          : "bg-slate-800 text-slate-400 border border-slate-700"
+                          : "bg-blue-950/60 text-slate-400 border border-blue-900/40"
                       }`}
                     >
                       {m.isActive ? "Saytda faol" : "Yashirin"}
                     </span>
                   </div>
-                  <p className="text-xs text-purple-400 mt-0.5">{m.roleUz}</p>
+                  <p className="text-xs text-sky-400 mt-0.5 font-medium">{m.roleUz}</p>
                   <p className="text-xs text-slate-500">{m.roleRu}</p>
                 </div>
               </div>
@@ -321,18 +321,18 @@ export default function AdminTeamPage() {
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                    className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
                   />
                   <input
                     type="text"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="/team/sardor.jpg yoki https://..."
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs font-mono"
+                    className="w-full px-3.5 py-2.5 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-xs font-mono"
                   />
                 </div>
                 {imageUrl && (
-                  <div className="mt-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center gap-2">
+                  <div className="mt-2 p-2 bg-[#050b14] rounded-xl border border-blue-900/30 flex items-center gap-2">
                     <span className="text-[10px] text-slate-500">Preview:</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imageUrl} alt="Preview" className="size-8 rounded-full object-cover" />
@@ -347,7 +347,7 @@ export default function AdminTeamPage() {
                   value={bioUz}
                   onChange={(e) => setBioUz(e.target.value)}
                   placeholder="5 yillik tajriba..."
-                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm"
+                  className="w-full p-2.5 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-sm"
                 />
               </div>
 
@@ -357,24 +357,24 @@ export default function AdminTeamPage() {
                   id="team-is-active"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="size-4 rounded text-purple-600 focus:ring-purple-500"
+                  className="size-4 rounded accent-blue-600"
                 />
                 <label htmlFor="team-is-active" className="text-xs font-semibold text-slate-300 cursor-pointer">
                   Saytda faol ko'rsatilsin
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-900/20">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm cursor-pointer"
+                  className="px-4 py-2 bg-blue-950/60 hover:bg-blue-900/50 border border-blue-800/40 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold cursor-pointer"
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
                 >
                   Saqlash
                 </button>

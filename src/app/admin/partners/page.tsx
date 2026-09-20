@@ -111,7 +111,7 @@ export default function AdminPartnersPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20 cursor-pointer w-fit"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer w-fit"
         >
           <Plus className="size-4" />
           <span>Yangi hamkor qo'shish</span>
@@ -122,7 +122,7 @@ export default function AdminPartnersPage() {
         {partners.map((p) => (
           <div
             key={p.id}
-            className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between shadow-sm"
+            className="p-5 rounded-2xl bg-[#0a1326] border border-blue-900/20 flex items-center justify-between shadow-sm hover:border-blue-500/30 transition-all"
           >
             <div>
               <h3 className="font-bold text-white text-base">{p.name}</h3>
@@ -131,7 +131,7 @@ export default function AdminPartnersPage() {
                 <a
                   href={p.websiteUrl}
                   target="_blank"
-                  className="text-xs text-purple-400 hover:underline mt-1 block"
+                  className="text-xs text-sky-400 hover:underline mt-1 block"
                 >
                   {p.websiteUrl}
                 </a>
@@ -201,7 +201,7 @@ export default function AdminPartnersPage() {
                           reader.readAsDataURL(file);
                         }
                       }}
-                      className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                      className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
                     />
                   </div>
                   <input
@@ -210,11 +210,11 @@ export default function AdminPartnersPage() {
                     value={logoUrl}
                     onChange={(e) => setLogoUrl(e.target.value)}
                     placeholder="/partners/sample.svg yoki https://..."
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs font-mono"
+                    className="w-full px-3.5 py-2.5 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-xs font-mono"
                   />
                 </div>
                 {logoUrl && (
-                  <div className="mt-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center gap-2">
+                  <div className="mt-2 p-2 bg-[#050b14] rounded-xl border border-blue-900/30 flex items-center gap-2">
                     <span className="text-[10px] text-slate-500">Preview:</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={logoUrl} alt="Preview" className="h-6 max-w-[100px] object-contain" />
@@ -229,21 +229,21 @@ export default function AdminPartnersPage() {
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
                   placeholder="https://example.uz"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm"
+                  className="w-full px-3.5 py-2.5 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-sm"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-900/20">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm"
+                  className="px-4 py-2 bg-blue-950/60 hover:bg-blue-900/50 border border-blue-800/40 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold"
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
                 >
                   Saqlash
                 </button>

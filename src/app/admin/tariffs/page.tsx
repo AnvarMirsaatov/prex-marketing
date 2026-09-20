@@ -177,7 +177,7 @@ export default function AdminTariffsPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-600/20 cursor-pointer w-fit"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer w-fit"
         >
           <Plus className="size-4" />
           <span>Yangi tarif qo'shish</span>
@@ -199,13 +199,13 @@ export default function AdminTariffsPage() {
               key={t.id}
               className={`p-6 rounded-2xl border flex flex-col justify-between transition-all ${
                 t.isPopular
-                  ? "bg-slate-900 border-purple-500/50 shadow-lg shadow-purple-500/10"
-                  : "bg-slate-900 border-slate-800"
+                  ? "bg-[#0a1326] border-blue-500/50 shadow-xl shadow-blue-950/40"
+                  : "bg-[#0a1326] border-blue-900/20"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-800 text-purple-400">
+                  <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-950/80 text-sky-400 border border-blue-800/40">
                     {t.serviceType}
                   </span>
                   {t.isPopular && (
@@ -388,7 +388,7 @@ export default function AdminTariffsPage() {
                     type="checkbox"
                     checked={isPopular}
                     onChange={(e) => setIsPopular(e.target.checked)}
-                    className="size-4 rounded accent-purple-600"
+                    className="size-4 rounded accent-blue-600"
                   />
                   <span>Ommabop paket (Belgilash)</span>
                 </label>
@@ -398,23 +398,23 @@ export default function AdminTariffsPage() {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="size-4 rounded accent-purple-600"
+                    className="size-4 rounded accent-blue-600"
                   />
                   <span>Saytda ko'rsatish (Faol)</span>
                 </label>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-900/20">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
+                  className="px-4 py-2.5 bg-blue-950/60 hover:bg-blue-900/50 border border-blue-800/40 text-slate-300 rounded-xl text-sm font-semibold cursor-pointer"
                 >
                   Bekor qilish
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-purple-600/20 cursor-pointer"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer"
                 >
                   Saqlash
                 </button>

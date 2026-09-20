@@ -38,21 +38,23 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden text-slate-100">
-      {/* Dynamic Background elements */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-lime-400/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#050b14] flex items-center justify-center p-4 relative overflow-hidden text-slate-100">
+      {/* Deep Sapphire Spotlight Elements */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-600/20 via-sky-500/15 to-transparent rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-blue-700/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+      <div className="relative w-full max-w-md bg-[#0a1326]/90 border border-blue-500/20 rounded-3xl p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-xl overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30 mb-4 shadow-inner">
+          <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-blue-500/10 text-sky-400 border border-blue-500/20 mb-4 shadow-inner">
             <ShieldCheck className="size-7" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white">
-            PROX <span className="text-purple-500">.</span> ADMIN
+            PROX <span className="text-sky-400">.</span> ADMIN
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Boshqaruv tizimiga kirish
+            Boshqaruv tizimiga xavfsiz kirish
           </p>
         </div>
 
@@ -75,7 +77,7 @@ export default function AdminLoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin"
-                className="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors text-sm"
+                className="w-full pl-10 pr-4 py-3 bg-[#070e1b] border border-blue-500/20 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-colors text-sm"
               />
             </div>
           </div>
@@ -92,7 +94,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors text-sm"
+                className="w-full pl-10 pr-4 py-3 bg-[#070e1b] border border-blue-500/20 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-colors text-sm"
               />
             </div>
           </div>
@@ -100,7 +102,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3.5 px-4 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-purple-600/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <span className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -113,10 +115,10 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-800/80 text-center">
-          <p className="text-xs text-slate-500">
-            Standart login: <span className="text-slate-300 font-mono">admin</span> &bull; parol:{" "}
-            <span className="text-slate-300 font-mono">prox2026!</span>
+        <div className="mt-8 pt-6 border-t border-blue-500/15 text-center">
+          <p className="text-xs text-slate-400">
+            Standart login: <span className="text-sky-300 font-mono font-bold">admin</span> &bull; parol:{" "}
+            <span className="text-sky-300 font-mono font-bold">prox2026!</span>
           </p>
         </div>
       </div>

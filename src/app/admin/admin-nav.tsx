@@ -52,14 +52,14 @@ export function AdminNav() {
   }
 
   const navContent = (
-    <div className="flex flex-col h-full bg-slate-950 border-r border-slate-800/80 p-4 w-64 text-slate-200">
+    <div className="flex flex-col h-full bg-[#070e1c] border-r border-blue-900/20 p-4 w-64 text-slate-200">
       {/* Brand header */}
-      <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between px-3 py-4 mb-4 border-b border-blue-900/20">
         <div>
-          <span className="text-xl font-black tracking-tight text-white">
-            PROX <span className="text-purple-500">.</span>
+          <span className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
+            PROX <span className="text-sky-400">.</span>
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-400">
+          <span className="text-[10px] font-bold uppercase tracking-wider block text-blue-300/60 mt-0.5">
             Boshqaruv Paneli
           </span>
         </div>
@@ -72,7 +72,7 @@ export function AdminNav() {
       </div>
 
       {/* Navigation links */}
-      <nav className="flex-1 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1.5 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -86,11 +86,11 @@ export function AdminNav() {
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
-                  ? "bg-purple-600 text-white shadow-md shadow-purple-600/20 font-semibold"
-                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-900"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/25 border border-blue-400/30 font-semibold"
+                  : "text-slate-400 hover:text-sky-200 hover:bg-blue-950/40"
               }`}
             >
-              <Icon className={`size-4.5 ${isActive ? "text-white" : "text-slate-400"}`} />
+              <Icon className={`size-4.5 ${isActive ? "text-sky-200" : "text-slate-400"}`} />
               <span>{item.label}</span>
             </Link>
           );
@@ -98,17 +98,17 @@ export function AdminNav() {
       </nav>
 
       {/* Bottom links */}
-      <div className="pt-4 border-t border-slate-800/80 space-y-2">
+      <div className="pt-4 border-t border-blue-900/20 space-y-2">
         <Link
           href="/uz"
           target="_blank"
-          className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
+          className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-blue-950/40 transition-colors"
         >
           <span className="flex items-center gap-2">
-            <ExternalLink className="size-4 text-slate-500" />
+            <ExternalLink className="size-4 text-blue-400" />
             Saytni ko'rish
           </span>
-          <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] bg-blue-950/60 text-blue-300 border border-blue-800/40 px-1.5 py-0.5 rounded">
             UZ
           </span>
         </Link>
@@ -132,7 +132,7 @@ export function AdminNav() {
       </aside>
 
       {/* Mobile Bar & Drawer */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-950 border-b border-slate-800 p-4 flex items-center justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#070e1c] border-b border-blue-900/20 p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setMobileOpen(true)}
@@ -140,12 +140,12 @@ export function AdminNav() {
           >
             <Menu className="size-6" />
           </button>
-          <span className="font-black text-lg">PROX ADMIN</span>
+          <span className="font-black text-lg text-white">PROX ADMIN</span>
         </div>
         <Link
           href="/uz"
           target="_blank"
-          className="text-xs bg-slate-800 px-2.5 py-1.5 rounded-lg text-slate-300 flex items-center gap-1.5"
+          className="text-xs bg-blue-950/80 border border-blue-800/40 px-2.5 py-1.5 rounded-lg text-blue-200 flex items-center gap-1.5 hover:bg-blue-900/60 transition-colors"
         >
           <span>Sayt</span>
           <ExternalLink className="size-3" />
@@ -153,7 +153,7 @@ export function AdminNav() {
       </div>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm md:hidden">
           <div className="w-64 h-full">{navContent}</div>
         </div>
       )}

@@ -14,11 +14,38 @@ export function proxy(request: NextRequest) {
   }
 
   // Protect admin panel (except login)
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("prox_admin_token")?.value;
-    if (!token) {
+    let isAuthenticated = false;
+
+    if (token) {
+      try {
+        const [data] = token.split(".");
+        if (data) {
+          const payload = JSON.parse(Buffer.from(data, "base64url").toString("utf8"));
+          if (payload && typeof payload.expiresAt === "number" && payload.expiresAt > Date.now()) {
+            isAuthenticated = true;
+          }
+        }
+      } catch {
+        isAuthenticated = false;
+      }
+    }
+
+    if (pathname === "/admin/login") {
+      if (isAuthenticated) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+      return NextResponse.next();
+    }
+
+    if (!isAuthenticated) {
       const loginUrl = new URL("/admin/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      if (token) {
+        response.cookies.delete("prox_admin_token");
+      }
+      return response;
     }
   }
 
