@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: "Avtorizatsiyadan o'tilmagan" }, { status: 401 });
   }
 
-  if (session.role !== "super_admin") {
+  if ((session.role || "").toUpperCase() !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Kirish taqiqlangan. Faqat Super Admin uchun." }, { status: 403 });
   }
 
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Avtorizatsiyadan o'tilmagan" }, { status: 401 });
   }
 
-  if (session.role !== "super_admin") {
+  if ((session.role || "").toUpperCase() !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Kirish taqiqlangan. Faqat Super Admin uchun." }, { status: 403 });
   }
 
@@ -116,7 +116,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Avtorizatsiyadan o'tilmagan" }, { status: 401 });
   }
 
-  if (session.role !== "super_admin") {
+  if ((session.role || "").toUpperCase() !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Kirish taqiqlangan. Faqat Super Admin uchun." }, { status: 403 });
   }
 
@@ -143,12 +143,12 @@ export async function PATCH(request: Request) {
       updateData.name = name.trim();
     }
 
-    if (role && (role === "super_admin" || role === "admin")) {
-      // If demoting from super_admin, check if there are other super_admins
-      if (targetUser.role === "super_admin" && role !== "super_admin") {
-        const superCount = await prisma.adminUser.count({
-          where: { role: "super_admin" },
-        });
+    const cleanRole = role ? role.toUpperCase() : undefined;
+    if (cleanRole && (cleanRole === "SUPER_ADMIN" || cleanRole === "ADMIN")) {
+      const isTargetSuper = targetUser.role.toUpperCase() === "SUPER_ADMIN";
+      if (isTargetSuper && cleanRole !== "SUPER_ADMIN") {
+        const allUsers = await prisma.adminUser.findMany();
+        const superCount = allUsers.filter((u) => u.role.toUpperCase() === "SUPER_ADMIN").length;
         if (superCount <= 1) {
           return NextResponse.json(
             { error: "Tizimda kamida 1 ta Super Admin qolishi shart" },
@@ -156,7 +156,7 @@ export async function PATCH(request: Request) {
           );
         }
       }
-      updateData.role = role;
+      updateData.role = cleanRole;
     }
 
     if (password) {
@@ -195,7 +195,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Avtorizatsiyadan o'tilmagan" }, { status: 401 });
   }
 
-  if (session.role !== "super_admin") {
+  if ((session.role || "").toUpperCase() !== "SUPER_ADMIN") {
     return NextResponse.json({ error: "Kirish taqiqlangan. Faqat Super Admin uchun." }, { status: 403 });
   }
 
@@ -224,10 +224,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Foydalanuvchi topilmadi" }, { status: 404 });
     }
 
-    if (targetUser.role === "super_admin") {
-      const superCount = await prisma.adminUser.count({
-        where: { role: "super_admin" },
-      });
+    if ((targetUser.role || "").toUpperCase() === "SUPER_ADMIN") {
+      const allUsers = await prisma.adminUser.findMany();
+      const superCount = allUsers.filter((u) => u.role.toUpperCase() === "SUPER_ADMIN").length;
       if (superCount <= 1) {
         return NextResponse.json(
           { error: "Tizimda kamida 1 ta Super Admin qolishi shart" },

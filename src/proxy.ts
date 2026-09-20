@@ -1,7 +1,58 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isLocale } from "@/i18n/config";
 
-export function proxy(request: NextRequest) {
+const SECRET = process.env.ADMIN_SESSION_SECRET || "prox_marketing_session_secret_2026_xyz";
+
+interface AdminTokenPayload {
+  userId: string;
+  username: string;
+  role: string;
+  name: string;
+  expiresAt: number;
+}
+
+async function verifyToken(token: string): Promise<AdminTokenPayload | null> {
+  try {
+    const [data, signature] = token.split(".");
+    if (!data || !signature) return null;
+
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(SECRET),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+
+    const b64 = signature.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = b64.length % 4;
+    const padded = pad ? b64 + "=".repeat(4 - pad) : b64;
+    const sigBytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+
+    const isValid = await crypto.subtle.verify("HMAC", key, sigBytes, enc.encode(data));
+    if (!isValid) return null;
+
+    const dataB64 = data.replace(/-/g, "+").replace(/_/g, "/");
+    const dataPadded = dataB64.length % 4 ? dataB64 + "=".repeat(4 - (dataB64.length % 4)) : dataB64;
+    const jsonStr = decodeURIComponent(
+      Array.from(atob(dataPadded))
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const payload: AdminTokenPayload = JSON.parse(jsonStr);
+
+    if (!payload.expiresAt || payload.expiresAt < Date.now()) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip internal next requests, static assets, and api routes
@@ -16,33 +67,20 @@ export function proxy(request: NextRequest) {
   // Protect admin panel (except login)
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("prox_admin_token")?.value;
-    let isAuthenticated = false;
-    let userRole = "admin";
-
-    if (token) {
-      try {
-        const [data] = token.split(".");
-        if (data) {
-          const payload = JSON.parse(Buffer.from(data, "base64url").toString("utf8"));
-          if (payload && typeof payload.expiresAt === "number" && payload.expiresAt > Date.now()) {
-            isAuthenticated = true;
-            userRole = payload.role || "admin";
-          }
-        }
-      } catch {
-        isAuthenticated = false;
-      }
-    }
+    const session = token ? await verifyToken(token) : null;
+    const userRole = (session?.role || "").toUpperCase();
+    const isSuperAdmin = userRole === "SUPER_ADMIN";
+    const isAdminManager = userRole === "ADMIN";
 
     if (pathname === "/admin/login") {
-      if (isAuthenticated) {
-        const target = userRole === "super_admin" ? "/admin" : "/admin/leads";
+      if (session) {
+        const target = isSuperAdmin ? "/admin" : "/admin/leads";
         return NextResponse.redirect(new URL(target, request.url));
       }
       return NextResponse.next();
     }
 
-    if (!isAuthenticated) {
+    if (!session) {
       const loginUrl = new URL("/admin/login", request.url);
       const response = NextResponse.redirect(loginUrl);
       if (token) {
@@ -51,8 +89,8 @@ export function proxy(request: NextRequest) {
       return response;
     }
 
-    // Role-based route restriction: Admin (manager) ONLY has access to /admin/leads and /admin/security
-    if (userRole === "admin" && pathname !== "/admin/leads" && pathname !== "/admin/security") {
+    // Role-based route restriction: ADMIN (manager) ONLY has access to /admin/leads and /admin/security
+    if (isAdminManager && pathname !== "/admin/leads" && pathname !== "/admin/security") {
       return NextResponse.redirect(new URL("/admin/leads", request.url));
     }
   }
@@ -70,7 +108,14 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {

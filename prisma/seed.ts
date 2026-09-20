@@ -32,34 +32,36 @@ async function main() {
     },
   });
 
-  // 2. Admin Users (Super Admin + Manager)
-  const passwordHash = await bcrypt.hash("prox2026!", 10);
+  // 2. Admin Users (SUPER_ADMIN + ADMIN)
+  const superAdminPasswordHash = await bcrypt.hash("ProxSuper2026!", 10);
   await prisma.adminUser.upsert({
-    where: { username: "admin" },
+    where: { username: "superadmin" },
     update: {
-      role: "super_admin",
+      passwordHash: superAdminPasswordHash,
+      role: "SUPER_ADMIN",
       name: "Bosh Administrator (Super Admin)",
     },
     create: {
-      username: "admin",
-      passwordHash,
+      username: "superadmin",
+      passwordHash: superAdminPasswordHash,
       name: "Bosh Administrator (Super Admin)",
-      role: "super_admin",
+      role: "SUPER_ADMIN",
     },
   });
 
-  const managerPasswordHash = await bcrypt.hash("prox123!", 10);
+  const managerPasswordHash = await bcrypt.hash("ProxManager2026!", 10);
   await prisma.adminUser.upsert({
     where: { username: "manager" },
     update: {
-      role: "admin",
+      passwordHash: managerPasswordHash,
+      role: "ADMIN",
       name: "Lid Menejeri",
     },
     create: {
       username: "manager",
       passwordHash: managerPasswordHash,
       name: "Lid Menejeri",
-      role: "admin",
+      role: "ADMIN",
     },
   });
 
@@ -287,6 +289,57 @@ async function main() {
     if (!existing) {
       await prisma.partner.create({ data: p });
     }
+  }
+
+  // 6. Initial Hero Carousel Slides
+  const heroSlidesData = [
+    {
+      titleUz: "Brendingizni Raqamli Yetakchiga Aylantiramiz",
+      titleRu: "Выводим ваш бренд в лидеры цифрового рынка",
+      descUz: "Maqsadli auditoriyani o'rganish, professional video, storis va motion-kontent hamda ijtimoiy tarmoqlarda ishonchli obro' yaratish.",
+      descRu: "Глубокий анализ аудитории, профессиональный видео-контент, сторис, моушн-дизайн и построение безупречной репутации бренда.",
+      badgeUz: "Strategik SMM & Media",
+      badgeRu: "Стратегический SMM и медиа",
+      serviceTarget: "SMM",
+      buttonTextUz: "Ariza qoldirish",
+      buttonTextRu: "Оставить заявку",
+      order: 1,
+      isActive: true,
+    },
+    {
+      titleUz: "Har Bir Sarflangan Byudjet Sotuvga Aylanadi",
+      titleRu: "Каждый вложенный бюджет работает на результат",
+      descUz: "Instagram, Facebook, Google Ads va Telegram Ads platformalarida aniq target kampaniyalari, sotuv bo'limi tahlili va keng qamrovli marketing konsalting.",
+      descRu: "Точечные таргет-кампании в Instagram, Facebook, Google Ads и Telegram Ads, аудит отдела продаж и глубокий стратегический консалтинг.",
+      badgeUz: "Maqsadli Reklama & Tizimli Savdo",
+      badgeRu: "Таргетированная реклама и продажи",
+      serviceTarget: "Marketing",
+      buttonTextUz: "Ariza qoldirish",
+      buttonTextRu: "Оставить заявку",
+      order: 2,
+      isActive: true,
+    },
+    {
+      titleUz: "Biznesingiz Uchun Ilg'or IT & Sun'iy Intellekt",
+      titleRu: "Передовые IT и ИИ-решения для масштабирования",
+      descUz: "Zamonaviy veb-saytlar, mobil ilovalar, to'lov tizimlari va biznes jarayonlarini 24/7 avtomatlashtiruvchi aqlli Telegram va AI botlar.",
+      descRu: "Конверсионные веб-сайты, мобильные приложения, интеграция эквайринга и умные AI/Telegram-боты для автоматизации операционных процессов.",
+      badgeUz: "Zamonaviy IT & Avtomatlashtirish",
+      badgeRu: "Современные IT и автоматизация",
+      serviceTarget: "IT xizmatlari",
+      buttonTextUz: "Ariza qoldirish",
+      buttonTextRu: "Оставить заявку",
+      order: 3,
+      isActive: true,
+    },
+  ];
+
+  const existingSlidesCount = await prisma.heroSlide.count();
+  if (existingSlidesCount === 0) {
+    for (const slide of heroSlidesData) {
+      await prisma.heroSlide.create({ data: slide });
+    }
+    console.log("✅ Initial Hero slides seeded!");
   }
 
   console.log("✅ Seed completed successfully!");

@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
   // Create form
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState("admin");
+  const [role, setRole] = useState("ADMIN");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
 
   // Edit user form
   const [editName, setEditName] = useState("");
-  const [editRole, setEditRole] = useState("admin");
+  const [editRole, setEditRole] = useState("ADMIN");
   const [editSubmitting, setEditSubmitting] = useState(false);
 
   async function loadData() {
@@ -313,7 +313,7 @@ export default function AdminUsersPage() {
           <div className="divide-y divide-blue-900/20">
             {users.map((u) => {
               const isCurrentUser = u.id === currentUserId;
-              const isSuper = u.role === "super_admin";
+              const isSuper = (u.role || "").toUpperCase() === "SUPER_ADMIN";
 
               return (
                 <div
@@ -467,32 +467,32 @@ export default function AdminUsersPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setRole("admin")}
+                    onClick={() => setRole("ADMIN")}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                      role === "admin"
+                      role.toUpperCase() === "ADMIN"
                         ? "bg-blue-950/60 border-blue-500 text-white shadow-lg shadow-blue-950/40"
                         : "bg-[#070e1c] border-blue-900/40 text-slate-400 hover:border-blue-700/50"
                     }`}
                   >
                     <div className="font-bold text-sm text-sky-400 flex items-center justify-between">
                       <span>Admin (Menejer)</span>
-                      {role === "admin" && <CheckCircle2 className="size-4 text-sky-400" />}
+                      {role.toUpperCase() === "ADMIN" && <CheckCircle2 className="size-4 text-sky-400" />}
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1">Faqat So&apos;rovlar (Leads)</p>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setRole("super_admin")}
+                    onClick={() => setRole("SUPER_ADMIN")}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                      role === "super_admin"
+                      role.toUpperCase() === "SUPER_ADMIN"
                         ? "bg-purple-950/60 border-purple-500 text-white shadow-lg shadow-purple-950/40"
                         : "bg-[#070e1c] border-blue-900/40 text-slate-400 hover:border-purple-700/50"
                     }`}
                   >
                     <div className="font-bold text-sm text-purple-400 flex items-center justify-between">
                       <span>Super Admin</span>
-                      {role === "super_admin" && <CheckCircle2 className="size-4 text-purple-400" />}
+                      {role.toUpperCase() === "SUPER_ADMIN" && <CheckCircle2 className="size-4 text-purple-400" />}
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1">To&apos;liq boshqaruv</p>
                   </button>
@@ -633,32 +633,32 @@ export default function AdminUsersPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setEditRole("admin")}
+                    onClick={() => setEditRole("ADMIN")}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                      editRole === "admin"
+                      editRole.toUpperCase() === "ADMIN"
                         ? "bg-blue-950/60 border-blue-500 text-white shadow-lg shadow-blue-950/40"
                         : "bg-[#070e1c] border-blue-900/40 text-slate-400 hover:border-blue-700/50"
                     }`}
                   >
                     <div className="font-bold text-sm text-sky-400 flex items-center justify-between">
                       <span>Admin (Menejer)</span>
-                      {editRole === "admin" && <CheckCircle2 className="size-4 text-sky-400" />}
+                      {editRole.toUpperCase() === "ADMIN" && <CheckCircle2 className="size-4 text-sky-400" />}
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1">Faqat Leads</p>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setEditRole("super_admin")}
+                    onClick={() => setEditRole("SUPER_ADMIN")}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                      editRole === "super_admin"
+                      editRole.toUpperCase() === "SUPER_ADMIN"
                         ? "bg-purple-950/60 border-purple-500 text-white shadow-lg shadow-purple-950/40"
                         : "bg-[#070e1c] border-blue-900/40 text-slate-400 hover:border-purple-700/50"
                     }`}
                   >
                     <div className="font-bold text-sm text-purple-400 flex items-center justify-between">
                       <span>Super Admin</span>
-                      {editRole === "super_admin" && <CheckCircle2 className="size-4 text-purple-400" />}
+                      {editRole.toUpperCase() === "SUPER_ADMIN" && <CheckCircle2 className="size-4 text-purple-400" />}
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1">To&apos;liq boshqaruv</p>
                   </button>

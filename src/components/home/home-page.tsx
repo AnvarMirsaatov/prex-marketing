@@ -5,7 +5,8 @@ import { PricingCard } from "@/components/ui/pricing-card";
 import { Reveal } from "@/components/ui/reveal";
 import { PartnerSlider } from "@/components/home/partner-slider";
 import { ConsultationForm } from "@/components/home/consultation-form";
-import { HeroCarousel } from "@/components/home/hero-carousel";
+import { HeroCarousel, type DbHeroSlide } from "@/components/home/hero-carousel";
+import { prisma } from "@/lib/prisma";
 import { localizedPath, serviceKeys } from "@/config/routes";
 import { site } from "@/config/site";
 import { partners, smmPlans, marketingStartingAmount, pricingCurrency } from "@/data/home";
@@ -21,9 +22,20 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export function HomePage({ locale }: { locale: Locale }) {
+export async function HomePage({ locale }: { locale: Locale }) {
   const t = getHomeMessages(locale);
   const pricingHref = localizedPath(locale, "pricing");
+
+  // Fetch real-time hero slides from DB
+  let heroSlides: DbHeroSlide[] = [];
+  try {
+    heroSlides = await prisma.heroSlide.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+  } catch (e) {
+    console.error("Hero slides fetch error:", e);
+  }
 
   const money = (amount: number) =>
     new Intl.NumberFormat(locale, {
@@ -38,7 +50,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   return (
     <>
       {/* 1. HERO CAROUSEL (CINEMATIC TRAILER SLIDER) */}
-      <HeroCarousel locale={locale} />
+      <HeroCarousel locale={locale} slides={heroSlides} />
 
       {/* 2. SERVICES PREVIEW SECTION */}
       <section id="services" aria-labelledby="services-title" className="py-section scroll-mt-6 bg-[#050b14]">

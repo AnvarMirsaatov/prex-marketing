@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -33,9 +34,28 @@ interface SlideData {
   icon: typeof Share2;
   gradient: string;
   accentGlow: string;
+  imageUrl?: string | null;
+  buttonTextUz?: string;
+  buttonTextRu?: string;
 }
 
-const SLIDES: SlideData[] = [
+export interface DbHeroSlide {
+  id: string;
+  titleUz: string;
+  titleRu: string;
+  descUz: string;
+  descRu: string;
+  badgeUz: string | null;
+  badgeRu: string | null;
+  imageUrl: string | null;
+  buttonTextUz: string | null;
+  buttonTextRu: string | null;
+  serviceTarget: string | null;
+  order: number;
+  isActive: boolean;
+}
+
+const DEFAULT_SLIDES: SlideData[] = [
   {
     id: "smm",
     categoryUz: "Strategik SMM & Media",
@@ -59,6 +79,8 @@ const SLIDES: SlideData[] = [
       { label: "Доверие аудитории", value: "98%" },
     ],
     serviceValue: "SMM",
+    buttonTextUz: "Ariza qoldirish",
+    buttonTextRu: "Оставить заявку",
     detailHref: "/xizmatlar/smm",
     icon: Share2,
     gradient: "from-blue-600/30 via-indigo-600/20 to-transparent",
@@ -87,6 +109,8 @@ const SLIDES: SlideData[] = [
       { label: "Прозрачные отчеты", value: "100%" },
     ],
     serviceValue: "Marketing",
+    buttonTextUz: "Ariza qoldirish",
+    buttonTextRu: "Оставить заявку",
     detailHref: "/xizmatlar/marketing",
     icon: TrendingUp,
     gradient: "from-sky-600/30 via-blue-700/20 to-transparent",
@@ -115,6 +139,8 @@ const SLIDES: SlideData[] = [
       { label: "Автоматизация", value: "24/7" },
     ],
     serviceValue: "IT xizmatlari",
+    buttonTextUz: "Ariza qoldirish",
+    buttonTextRu: "Оставить заявку",
     detailHref: "/xizmatlar/it",
     icon: Code2,
     gradient: "from-cyan-600/30 via-blue-600/20 to-transparent",
@@ -124,30 +150,92 @@ const SLIDES: SlideData[] = [
 
 const AUTOPLAY_DELAY = 5500; // 5.5 seconds
 
-export function HeroCarousel({ locale }: { locale: Locale }) {
+export function HeroCarousel({
+  locale,
+  slides: dbSlides,
+}: {
+  locale: Locale;
+  slides?: DbHeroSlide[];
+}) {
   const isUz = locale === "uz";
+
+  // Map database slides or fallback to default cinematic slides
+  const slides: SlideData[] =
+    dbSlides && dbSlides.length > 0
+      ? dbSlides.map((s) => {
+          const target = s.serviceTarget || "SMM";
+          const isIT = target.toLowerCase().includes("it");
+          const isMarketing = target.toLowerCase().includes("market");
+          const icon = isIT ? Code2 : isMarketing ? TrendingUp : Share2;
+          const detailHref = isIT
+            ? "/xizmatlar/it"
+            : isMarketing
+              ? "/xizmatlar/marketing"
+              : "/xizmatlar/smm";
+          const accentGlow = isIT
+            ? "bg-cyan-600/20"
+            : isMarketing
+              ? "bg-sky-600/20"
+              : "bg-blue-600/25";
+
+          return {
+            id: s.id,
+            categoryUz: s.badgeUz || "Prox Marketing",
+            categoryRu: s.badgeRu || "Prox Marketing",
+            titleUz: s.titleUz,
+            titleRu: s.titleRu,
+            descUz: s.descUz,
+            descRu: s.descRu,
+            taglineUz: s.badgeUz || "Raqamli Yetakchilik",
+            taglineRu: s.badgeRu || "Цифровое лидерство",
+            statsUz: [
+              { label: "Oylik qamrov", value: "+300%" },
+              { label: "Muntazam kontent", value: "24/7" },
+              { label: "Auditoriya ishonchi", value: "98%" },
+            ],
+            statsRu: [
+              { label: "Охват аудитории", value: "+300%" },
+              { label: "Регулярный контент", value: "24/7" },
+              { label: "Доверие аудитории", value: "98%" },
+            ],
+            serviceValue: target,
+            buttonTextUz: s.buttonTextUz || "Ariza qoldirish",
+            buttonTextRu: s.buttonTextRu || "Оставить заявку",
+            detailHref,
+            icon,
+            gradient: isIT
+              ? "from-cyan-600/30 via-blue-600/20 to-transparent"
+              : isMarketing
+                ? "from-sky-600/30 via-blue-700/20 to-transparent"
+                : "from-blue-600/30 via-indigo-600/20 to-transparent",
+            accentGlow,
+            imageUrl: s.imageUrl || null,
+          };
+        })
+      : DEFAULT_SLIDES;
+
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const nextSlide = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % SLIDES.length);
-  }, []);
+    setCurrent((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
 
   const prevSlide = useCallback(() => {
-    setCurrent((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
-  }, []);
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  }, [slides.length]);
 
   // Autoplay handler
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || slides.length <= 1) return;
     timerRef.current = setInterval(() => {
       nextSlide();
     }, AUTOPLAY_DELAY);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [nextSlide, isPaused]);
+  }, [nextSlide, isPaused, slides.length]);
 
   // Handle lead consultation click with service dispatch
   function handleConsultationClick(service: string) {
@@ -165,7 +253,7 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
     }
   }
 
-  const slide = SLIDES[current];
+  const slide = slides[current] || slides[0];
   const Icon = slide.icon;
 
   return (
@@ -177,7 +265,7 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
     >
       {/* Background visual layers with Ken Burns cinematic zoom-in */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {SLIDES.map((s, index) => {
+        {slides.map((s, index) => {
           const isActive = index === current;
           return (
             <div
@@ -186,6 +274,21 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
                 isActive ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
             >
+              {/* Custom background image if present */}
+              {s.imageUrl && (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                  <img
+                    src={s.imageUrl}
+                    alt={s.titleUz}
+                    className={`w-full h-full object-cover opacity-25 mix-blend-luminosity transition-transform duration-[7000ms] ease-out ${
+                      isActive ? "scale-105" : "scale-100"
+                    }`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#050b14] via-[#050b14]/85 to-[#050b14]/60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050b14] via-transparent to-[#050b14]/80" />
+                </div>
+              )}
+
               {/* Radial gradient spotlight */}
               <div
                 className={`absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] sm:w-[1000px] h-[500px] rounded-full blur-[130px] transition-transform duration-[6000ms] ease-out ${
@@ -233,7 +336,11 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
                 onClick={() => handleConsultationClick(slide.serviceValue)}
                 className="button button-primary shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:shadow-[0_0_35px_rgba(56,189,248,0.6)] cursor-pointer"
               >
-                <span>{isUz ? "Ariza qoldirish" : "Оставить заявку"}</span>
+                <span>
+                  {isUz
+                    ? slide.buttonTextUz || "Ariza qoldirish"
+                    : slide.buttonTextRu || "Оставить заявку"}
+                </span>
                 <ArrowRight className="size-4" />
               </button>
 
@@ -268,6 +375,14 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
             <div className="relative w-full max-w-sm p-8 rounded-3xl bg-[#0a1326]/85 border border-blue-500/30 backdrop-blur-xl shadow-[0_20px_50px_rgba(2,6,23,0.9),inset_0_1px_1px_rgba(255,255,255,0.1)] overflow-hidden group">
               {/* Ambient flare in card */}
               <div className="absolute -top-12 -right-12 size-36 rounded-full bg-blue-500/20 blur-2xl" />
+
+              {/* Slide image preview inside card if present */}
+              {slide.imageUrl && (
+                <div className="mb-5 rounded-2xl overflow-hidden border border-blue-500/25 h-36 w-full relative">
+                  <img src={slide.imageUrl} alt={slide.titleUz} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1326] via-transparent to-transparent" />
+                </div>
+              )}
 
               <div className="flex items-center justify-between mb-6">
                 <div className="size-14 rounded-2xl bg-blue-500/20 border border-blue-500/40 text-sky-400 flex items-center justify-center shadow-[0_0_20px_rgba(56,189,248,0.3)]">
@@ -308,7 +423,7 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
               {/* Progress visual in card */}
               <div className="mt-6 pt-4 border-t border-blue-500/15 flex items-center justify-between text-[11px] text-slate-500">
                 <span>
-                  {isUz ? "Slayd" : "Слайд"} {current + 1} / {SLIDES.length}
+                  {isUz ? "Slayd" : "Слайд"} {current + 1} / {slides.length}
                 </span>
                 <span className="text-sky-400 font-semibold">
                   {isPaused ? (isUz ? "To'xtatilgan" : "Пауза") : (isUz ? "Aylanmoqda..." : "Авто...")}
@@ -322,7 +437,7 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
         <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-blue-500/15">
           {/* Progress Indicators */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            {SLIDES.map((s, index) => {
+            {slides.map((s, index) => {
               const isActive = index === current;
               return (
                 <button
@@ -331,42 +446,49 @@ export function HeroCarousel({ locale }: { locale: Locale }) {
                   className="flex-1 sm:flex-initial sm:w-28 text-left group cursor-pointer"
                   aria-label={`Slide ${index + 1}`}
                 >
-                  <div className="h-1.5 rounded-full bg-blue-950 border border-blue-900 overflow-hidden relative">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span
+                      className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                        isActive ? "text-sky-400" : "text-slate-500 group-hover:text-slate-300"
+                      }`}
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={`text-[10px] font-semibold transition-colors truncate max-w-[70px] ${
+                        isActive ? "text-slate-200" : "text-slate-500"
+                      }`}
+                    >
+                      {s.serviceValue}
+                    </span>
+                  </div>
+                  <div className="h-1 w-full bg-blue-950 rounded-full overflow-hidden border border-blue-900/40">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
+                      className={`h-full transition-all duration-300 rounded-full ${
                         isActive
-                          ? "bg-gradient-to-r from-blue-500 to-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)] w-full"
-                          : "w-0 group-hover:w-1/3 bg-blue-700"
+                          ? "w-full bg-gradient-to-r from-blue-500 to-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)]"
+                          : "w-0 bg-slate-700 group-hover:w-1/4"
                       }`}
                     />
                   </div>
-                  <span
-                    className={`block text-[11px] font-bold mt-2 transition-colors ${
-                      isActive ? "text-sky-300" : "text-slate-500 group-hover:text-slate-300"
-                    }`}
-                  >
-                    0{index + 1} &bull; {s.id.toUpperCase()}
-                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Navigation Arrows */}
-          <div className="flex items-center gap-3">
+          {/* Manual Arrow Controls */}
+          <div className="flex items-center gap-2.5">
             <button
-              type="button"
               onClick={prevSlide}
+              className="size-11 rounded-xl bg-[#0a1326]/80 border border-blue-500/25 hover:border-sky-400/50 hover:bg-blue-600/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95"
               aria-label="Oldingi slayd"
-              className="size-11 rounded-xl bg-blue-950/80 border border-blue-500/30 hover:border-sky-400 hover:bg-blue-900/60 text-slate-300 hover:text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
-              type="button"
               onClick={nextSlide}
+              className="size-11 rounded-xl bg-[#0a1326]/80 border border-blue-500/25 hover:border-sky-400/50 hover:bg-blue-600/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95"
               aria-label="Keyingi slayd"
-              className="size-11 rounded-xl bg-blue-950/80 border border-blue-500/30 hover:border-sky-400 hover:bg-blue-900/60 text-slate-300 hover:text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
             >
               <ChevronRight className="size-5" />
             </button>

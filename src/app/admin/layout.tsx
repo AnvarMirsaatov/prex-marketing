@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AdminNav } from "./admin-nav";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import "@/app/globals.css";
 
@@ -16,16 +15,7 @@ export default function AdminLayout({
   return (
     <html lang="uz">
       <body className="bg-[#050b14] text-slate-100 min-h-screen flex antialiased selection:bg-blue-600 selection:text-white">
-        <ToastProvider>
-          <div className="flex w-full min-h-screen">
-            <AdminNav />
-            <main className="flex-1 flex flex-col min-w-0 bg-[#070e1c]/70 overflow-y-auto">
-              <div className="p-6 md:p-8 max-w-7xl w-full mx-auto">
-                {children}
-              </div>
-            </main>
-          </div>
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

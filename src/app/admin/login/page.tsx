@@ -28,7 +28,9 @@ export default function AdminLoginPage() {
         throw new Error(data.error || "Login yoki parol noto'g'ri");
       }
 
-      router.push("/admin");
+      const role = (data.user?.role || "").toUpperCase();
+      const target = role === "SUPER_ADMIN" ? "/admin" : "/admin/leads";
+      router.push(target);
       router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
@@ -76,7 +78,7 @@ export default function AdminLoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                placeholder="Login yoki foydalanuvchi nomi"
                 className="w-full pl-10 pr-4 py-3 bg-[#070e1b] border border-blue-500/20 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-colors text-sm"
               />
             </div>
@@ -114,13 +116,6 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-blue-500/15 text-center">
-          <p className="text-xs text-slate-400">
-            Standart login: <span className="text-sky-300 font-mono font-bold">admin</span> &bull; parol:{" "}
-            <span className="text-sky-300 font-mono font-bold">prox2026!</span>
-          </p>
-        </div>
       </div>
     </div>
   );

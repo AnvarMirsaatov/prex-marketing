@@ -18,6 +18,7 @@ import {
   UserCog,
   KeyRound,
   Shield,
+  Sliders,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,6 +31,7 @@ interface CurrentUser {
 
 const SUPER_ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/hero", label: "Hero Karusel", icon: Sliders },
   { href: "/admin/leads", label: "So'rovlar (Leads)", icon: Inbox },
   { href: "/admin/services", label: "Xizmatlar", icon: Briefcase },
   { href: "/admin/tariffs", label: "Tariflar", icon: Tags },
@@ -70,7 +72,7 @@ export function AdminNav() {
   // If on login page, do not render sidebar
   if (pathname === "/admin/login") return null;
 
-  const isSuperAdmin = user?.role === "super_admin";
+  const isSuperAdmin = (user?.role || "").toUpperCase() === "SUPER_ADMIN";
   const navItems = isSuperAdmin ? SUPER_ADMIN_NAV : ADMIN_NAV;
 
   async function handleLogout() {

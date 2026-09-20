@@ -152,7 +152,30 @@ model AdminUser {
   username     String   @unique
   passwordHash String
   name         String
-  role         String   @default("admin") // admin, editor
+  role         String   @default("ADMIN") // SUPER_ADMIN, ADMIN
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+// 9. Hero Carousel Slaydlari (Bosh sahifa bannerlari)
+model HeroSlide {
+  id            String   @id @default(cuid())
+  titleUz       String
+  titleRu       String
+  descUz        String
+  descRu        String
+  badgeUz       String?  // e.g. "Strategik SMM"
+  badgeRu       String?  // e.g. "Стратегический SMM"
+  imageUrl      String?  // Fon rasmi yoki grafik (fayl yuklash yoki URL)
+  buttonTextUz  String?  @default("Ariza qoldirish")
+  buttonTextRu  String?  @default("Оставить заявку")
+  serviceTarget String?  @default("SMM") // SMM, Marketing, IT
+  order         Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+}
+
