@@ -46,11 +46,13 @@ export async function GET() {
   }
   const settings = await prisma.siteSettings.findUnique({
     where: { id: "default" },
-    select: { logoUrl: true, logoText: true },
+    select: { logoUrl: true, logoText: true, logoWidth: true, logoHeight: true },
   });
   return NextResponse.json({
     authenticated: true,
     user: session,
     logoUrl: settings?.logoUrl || null,
+    logoWidth: settings?.logoWidth ?? 160,
+    logoHeight: settings?.logoHeight ?? 45,
   });
 }

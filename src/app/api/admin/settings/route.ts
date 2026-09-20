@@ -35,6 +35,8 @@ export async function PUT(request: Request) {
     const {
       logoUrl,
       logoText,
+      logoWidth,
+      logoHeight,
       phone,
       phoneHref,
       instagram,
@@ -58,13 +60,32 @@ export async function PUT(request: Request) {
       where: { id: "default" },
     });
 
-    const isLogoChanged = existing?.logoUrl !== logoUrl;
+    const isLogoChanged =
+      existing?.logoUrl !== logoUrl ||
+      existing?.logoWidth !== logoWidth ||
+      existing?.logoHeight !== logoHeight;
+
+    const parsedWidth =
+      logoWidth !== undefined
+        ? logoWidth === null || logoWidth === ""
+          ? null
+          : parseInt(String(logoWidth), 10)
+        : existing?.logoWidth ?? 160;
+
+    const parsedHeight =
+      logoHeight !== undefined
+        ? logoHeight === null || logoHeight === ""
+          ? null
+          : parseInt(String(logoHeight), 10)
+        : existing?.logoHeight ?? 45;
 
     const updated = await prisma.siteSettings.upsert({
       where: { id: "default" },
       update: {
         logoUrl: logoUrl !== undefined ? (logoUrl?.trim() || null) : existing?.logoUrl,
         logoText: logoText !== undefined ? (logoText?.trim() || "PROX") : existing?.logoText,
+        logoWidth: isNaN(Number(parsedWidth)) ? null : parsedWidth,
+        logoHeight: isNaN(Number(parsedHeight)) ? null : parsedHeight,
         phone,
         phoneHref: phoneHref || `tel:${(phone || "").replace(/[^\d+]/g, "")}`,
         instagram,
@@ -87,6 +108,8 @@ export async function PUT(request: Request) {
         id: "default",
         logoUrl: logoUrl?.trim() || null,
         logoText: logoText?.trim() || "PROX",
+        logoWidth: parsedWidth ?? 160,
+        logoHeight: parsedHeight ?? 45,
         phone: phone || "+998 20 026 04 18",
         phoneHref: phoneHref || "tel:+998200260418",
         instagram: instagram || "https://www.instagram.com/prox_uz/",

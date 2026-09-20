@@ -18,6 +18,8 @@ import { useToast } from "@/components/providers/toast-provider";
 interface SettingsData {
   logoUrl: string | null;
   logoText: string;
+  logoWidth: number | null;
+  logoHeight: number | null;
   phone: string;
   phoneHref: string;
   instagram: string;
@@ -43,10 +45,13 @@ export function TabBranding() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [autoHeight, setAutoHeight] = useState(true);
 
   const [form, setForm] = useState<SettingsData>({
     logoUrl: null,
     logoText: "PROX",
+    logoWidth: 160,
+    logoHeight: 45,
     phone: "+998 20 026 04 18",
     phoneHref: "tel:+998200260418",
     instagram: "https://www.instagram.com/prox_uz/",
@@ -79,7 +84,14 @@ export function TabBranding() {
           ...data.settings,
           logoUrl: data.settings.logoUrl || null,
           logoText: data.settings.logoText || "PROX",
+          logoWidth: data.settings.logoWidth ?? 160,
+          logoHeight: data.settings.logoHeight ?? 45,
         }));
+        if (data.settings.logoHeight === null || data.settings.logoHeight === undefined) {
+          setAutoHeight(true);
+        } else {
+          setAutoHeight(false);
+        }
       }
     } catch {
       showToast("Sozlamalarni yuklab bo'lmadi", "error");
@@ -135,18 +147,29 @@ export function TabBranding() {
     e.preventDefault();
     setSaving(true);
 
+    const payload = {
+      ...form,
+      logoHeight: autoHeight ? null : form.logoHeight,
+    };
+
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         showToast("Sozlamalar va logotip muvaffaqiyatli saqlandi!", "success");
         // Notify other admin components (e.g. AdminNav)
         window.dispatchEvent(
-          new CustomEvent("prox-logo-updated", { detail: { logoUrl: form.logoUrl } })
+          new CustomEvent("prox-logo-updated", {
+            detail: {
+              logoUrl: form.logoUrl,
+              logoWidth: form.logoWidth,
+              logoHeight: autoHeight ? null : form.logoHeight,
+            },
+          })
         );
       } else {
         showToast("Saqlashda xatolik yuz berdi", "error");
@@ -178,7 +201,7 @@ export function TabBranding() {
               <span>Sayt Logotipi & Brending</span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Saytning asosiy Header, Footer va boshqaruv panelidagi logotipini boshqaring
+              Saytning asosiy Header, Footer va boshqaruv panelidagi logotipini hamda o'lchamlarini boshqaring
             </p>
           </div>
           <span
@@ -202,23 +225,39 @@ export function TabBranding() {
         {/* Live Preview & Upload Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Live Preview Box */}
-          <div className="flex flex-col justify-center items-center p-6 rounded-2xl bg-[#050b14] border border-blue-900/40 min-h-[160px] relative overflow-hidden text-center group">
+          <div className="flex flex-col justify-center items-center p-6 rounded-2xl bg-[#050b14] border border-blue-900/40 min-h-[190px] relative overflow-hidden text-center group">
             <div className="absolute inset-0 bg-radial from-blue-600/10 via-transparent to-transparent pointer-events-none" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 block">
-              Jonli Ko'rinish (Preview)
+              Jonli Ko'rinish (Live Preview)
             </span>
 
             {form.logoUrl ? (
-              <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 max-w-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={form.logoUrl}
-                  alt="Site Logo Preview"
-                  className="max-h-14 w-auto object-contain mx-auto transition-transform group-hover:scale-105"
-                  onError={() => {
-                    showToast("Logotip rasmini yuklab bo'lmadi, manzilni tekshiring", "error");
-                  }}
-                />
+              <div className="w-full flex flex-col items-center justify-center">
+                <div className="p-3 bg-white/[0.03] rounded-xl border border-blue-500/20 max-w-full flex items-center justify-center min-h-[90px] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={form.logoUrl}
+                    alt="Site Logo Preview"
+                    style={{
+                      width: form.logoWidth ? `${form.logoWidth}px` : "160px",
+                      height: autoHeight || !form.logoHeight ? "auto" : `${form.logoHeight}px`,
+                      maxHeight: "90px",
+                      maxWidth: "100%",
+                    }}
+                    className="object-contain mx-auto transition-all duration-150 group-hover:scale-105"
+                    onError={() => {
+                      showToast("Logotip rasmini yuklab bo'lmadi, manzilni tekshiring", "error");
+                    }}
+                  />
+                </div>
+                <div className="mt-2.5 text-[11px] text-slate-400 flex items-center gap-2">
+                  <span className="font-semibold text-sky-400">
+                    O'lcham: {form.logoWidth || 160}px ×{" "}
+                    {autoHeight || !form.logoHeight
+                      ? "Auto (proporsional)"
+                      : `${form.logoHeight}px`}
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="space-y-1">

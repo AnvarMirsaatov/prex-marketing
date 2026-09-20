@@ -148,6 +148,8 @@ model SiteSettings {
   id                String   @id @default("default")
   logoUrl           String?
   logoText          String?  @default("PROX")
+  logoWidth         Int?     @default(160)
+  logoHeight        Int?     @default(45)
   phone             String   @default("+998 20 026 04 18")
   phoneHref         String   @default("tel:+998200260418")
   instagram         String   @default("https://www.instagram.com/prox_uz/")
