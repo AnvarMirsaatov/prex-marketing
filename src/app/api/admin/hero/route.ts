@@ -82,8 +82,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, slide }, { status: 201 });
   } catch (error) {
+    const msg = error instanceof Error ? error.message : "Noma'lum xatolik";
     console.error("Hero slide POST error:", error);
-    return NextResponse.json({ error: "Slayd yaratishda xatolik" }, { status: 500 });
+    return NextResponse.json({ error: "Slayd yaratishda xatolik", detail: msg }, { status: 500 });
   }
 }
 
@@ -177,8 +178,9 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true, slide: updated });
   } catch (error) {
+    const msg = error instanceof Error ? error.message : "Noma'lum xatolik";
     console.error("Hero slide PUT error:", error);
-    return NextResponse.json({ error: "Slaydni yangilashda xatolik" }, { status: 500 });
+    return NextResponse.json({ error: "Slaydni yangilashda xatolik", detail: msg }, { status: 500 });
   }
 }
 

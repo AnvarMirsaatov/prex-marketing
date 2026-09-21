@@ -19,6 +19,7 @@ export function TabPartners() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [name, setName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
@@ -43,7 +44,7 @@ export function TabPartners() {
   function openCreate() {
     setEditingId(null);
     setName("");
-    setLogoUrl("/partners/sample.svg");
+    setLogoUrl("");
     setWebsiteUrl("");
     setOrder("0");
     setIsActive(true);
@@ -58,6 +59,28 @@ export function TabPartners() {
     setOrder(String(p.order));
     setIsActive(p.isActive);
     setModalOpen(true);
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setLogoUrl(data.url);
+        showToast('Logotip yuklandi', 'success');
+      } else {
+        showToast(data.error || 'Yuklashda xatolik', 'error');
+      }
+    } catch {
+      showToast('Server xatosi', 'error');
+    } finally {
+      setUploadingLogo(false);
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -196,27 +219,19 @@ export function TabPartners() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = () => {
-                            if (typeof reader.result === "string") {
-                              setLogoUrl(reader.result);
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
+                      onChange={handleLogoUpload}
                       className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
                     />
+                    {uploadingLogo && (
+                      <span className="text-xs text-slate-400 animate-pulse">Yuklanmoqda...</span>
+                    )}
                   </div>
                   <input
                     type="text"
                     required
                     value={logoUrl}
                     onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="/partners/sample.svg yoki https://..."
+                    placeholder="/uploads/your-logo.png yoki https://..."
                     className="w-full px-3.5 py-2.5 bg-[#050b14] border border-blue-900/30 rounded-xl text-white text-xs font-mono"
                   />
                 </div>
@@ -250,10 +265,10 @@ export function TabPartners() {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || uploadingLogo}
                   className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/25 border border-blue-400/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitting ? "Saqlanmoqda..." : "Saqlash"}
+                  {submitting ? "Saqlanmoqda..." : uploadingLogo ? "Yuklanmoqda..." : "Saqlash"}
                 </button>
               </div>
             </form>

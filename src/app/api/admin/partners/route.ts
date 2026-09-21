@@ -51,8 +51,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, partner }, { status: 201 });
   } catch (error) {
+    const msg = error instanceof Error ? error.message : "Noma'lum xatolik";
     console.error("Error creating partner:", error);
-    return NextResponse.json({ error: "Xatolik yuz berdi" }, { status: 500 });
+    return NextResponse.json({ error: "Hamkor yaratishda xatolik", detail: msg }, { status: 500 });
   }
 }
 

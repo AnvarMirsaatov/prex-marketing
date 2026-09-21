@@ -306,16 +306,21 @@ export function TabPortfolio() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          if (typeof reader.result === "string") {
-                            setImageUrl(reader.result);
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                      if (!file) return;
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+                        const data = await res.json();
+                        if (res.ok && data.url) {
+                          setImageUrl(data.url);
+                        } else {
+                          alert(data.error || "Rasm yuklashda xatolik");
+                        }
+                      } catch {
+                        alert("Server xatosi");
                       }
                     }}
                     className="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
